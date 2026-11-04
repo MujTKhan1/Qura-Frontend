@@ -38,7 +38,7 @@ let scene = null;
 try {
   scene = initScene({
     canvas: $('#webgl'), cssRoot: $('#css3d'),
-    orbitCards: $$('.oc'), chips: $$('[data-chip]'), panels: $$('.sp'),
+    orbitCards: $$('.oc'), chips: $$('[data-chip]'), panels: $$('.sp'), pings: $$('.gping'),
     mobile, reduced,
   });
 } catch (err) { console.warn('3D scene unavailable', err); }

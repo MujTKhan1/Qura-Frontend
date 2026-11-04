@@ -381,6 +381,21 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 }
 @media (prefers-reduced-motion: reduce) { .pulse, .hb-track { animation: none !important; } }
 
+/* scene 1: flag pings on the globe */
+.globe-pings { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+.gping { position: absolute; left: 0; top: 0; opacity: 0; will-change: transform, opacity; display: flex; align-items: center; gap: 10px; padding: 7px 12px 7px 7px; border-radius: 14px; white-space: nowrap;
+  background: rgba(255,255,255,.94); border: 1px solid rgba(0,163,155,.25); box-shadow: 0 0 0 4px rgba(0,194,184,.08), 0 14px 30px -14px rgba(16,29,56,.35); font-family: var(--sans); }
+.gping::after { content: ""; position: absolute; left: 10px; bottom: -6px; width: 10px; height: 10px; background: inherit; border-right: 1px solid rgba(0,163,155,.25); border-bottom: 1px solid rgba(0,163,155,.25); transform: rotate(45deg); }
+.gping.flip { transform-origin: right bottom; }
+.gping.flip::after { left: auto; right: 10px; }
+.gping { transform-origin: left bottom; }
+.gp-flag { width: 30px; height: 20px; border-radius: 4px; overflow: hidden; flex: none; box-shadow: 0 0 0 1px rgba(16,29,56,.12); display: block; }
+.gp-flag svg { width: 100%; height: 100%; display: block; }
+.gp-txt b { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+.gp-txt small { display: block; font-size: 11px; color: var(--muted); }
+.gp-new { font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-ink); background: var(--mint); padding: 3px 7px; border-radius: 99px; }
+@media (max-width: 900px) { .globe-pings { display: none; } }
+
 /* TEMP: scene number badge for review (remove before launch) */
 #sceneTag { position: fixed; left: 16px; bottom: 16px; z-index: 95; display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 99px; background: #101d38; color: #fff; font: 600 13px/1 var(--sans); box-shadow: 0 8px 24px -8px rgba(0,0,0,.45); pointer-events: none; }
 #sceneTag b { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #ff4d6d; font-size: 15px; }

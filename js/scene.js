@@ -16,12 +16,17 @@ const gauss = () => { let u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); 
 const onSphere = (r) => { const u = R() * 2 - 1, t = R() * Math.PI * 2, s = Math.sqrt(1 - u * u); return [r * s * Math.cos(t), r * u, r * s * Math.sin(t)]; };
 const mix = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const DEG = Math.PI / 180;
+const latLon = (lat, lon, r) => {
+  const phi = (90 - lat) * DEG, th = (lon + 180) * DEG;
+  return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(th), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(th));
+};
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 const bump = (s, k, w = 1.4) => { const x = clamp(1 - Math.abs(s - k) * w, 0, 1); return x * x * (3 - 2 * x); };
 
 const C = {
   teal: [0.0, 0.64, 0.61], tealLt: [0.36, 0.8, 0.76], sky: [0.24, 0.5, 0.88],
-  slate: [0.58, 0.65, 0.75], slateDk: [0.4, 0.47, 0.58],
+  slate: [0.58, 0.65, 0.75], slateDk: [0.4, 0.47, 0.58], skyLt: [0.55, 0.72, 0.96],
 };
 
 const Y0 = 2.6;                       // height of the "action" above the floor
@@ -39,7 +44,7 @@ const S = {
 };
 const LAST = S.camY.length - 1;
 // particles only live in scenes 0–2
-const PX = [BLOB_X, 3.3, 0], PSPIN = [0.4, 1, 0.12], PCHAOS = [0.02, 0.06, 0.14];
+const PX = [BLOB_X, 3.5, 0], PSIZE = [1, 0.62, 1], PSPIN = [0.4, 0.75, 0.12], PCHAOS = [0.02, 0.06, 0.14];
 
 const NOISE = /* glsl */`
 vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
@@ -80,7 +85,7 @@ function podiumTier(w, d, h, mat) {
   return new THREE.Mesh(g, mat);
 }
 
-export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels = [], mobile = false, reduced = false }) {
+export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels = [], pings = [], mobile = false, reduced = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   const PR = Math.min(window.devicePixelRatio || 1, 1.75);
   renderer.setPixelRatio(PR);
@@ -201,13 +206,14 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   };
   const F = [];
   F.push(build(() => [onSphere(BLOB_R * (1 + gauss() * 0.03)), mix(C.teal, C.sky, R() * 0.6)]));              // orb surface
-  const SHELL = Math.floor(N * 0.62), RS = 2.7, GA = Math.PI * (3 - Math.sqrt(5));
-  F.push(build((i) => {                                                                                        // network sphere
-    if (i < SHELL) {
-      const y = 1 - (2 * (i + 0.5)) / SHELL, r = Math.sqrt(1 - y * y), th = i * GA;
-      return [[Math.cos(th) * r * RS, y * RS, Math.sin(th) * r * RS], mix(C.teal, C.sky, R() * 0.5)];
-    }
-    return [onSphere(RS * 0.92 * Math.cbrt(R())), mix(C.tealLt, C.slate, R())];
+  const RG = 2.7;                                                                                               // dotted globe
+  F.push(build(() => {
+    const k = R(); let lat, lon;
+    if (k < 0.42) { lat = -80 + 20 * Math.floor(R() * 9); lon = R() * 360 - 180; }
+    else if (k < 0.84) { lon = -180 + 20 * Math.floor(R() * 18); lat = R() * 170 - 85; }
+    else { lat = Math.asin(R() * 2 - 1) / DEG; lon = R() * 360 - 180; }
+    const v = latLon(lat, lon, RG * (k < 0.84 ? 1 : 0.995));
+    return [[v.x, v.y, v.z], k < 0.84 ? mix(C.sky, C.teal, R() * 0.55) : mix(C.slate, C.skyLt, R())];
   }));
   F.push(build(() => [[(R() - 0.5) * 20, (R() - 0.5) * 9, (R() - 0.5) * 8 - 1], mix(C.slate, C.slateDk, R())])); // fragments
   const MAXP = F.length - 1;
@@ -219,13 +225,13 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
   geo.setAttribute('aRand', new THREE.BufferAttribute(rnd, 1));
   const BASE = mobile ? 62 : 56;
-  const U = { uTime: { value: 0 }, uSize: { value: BASE }, uPR: { value: PR }, uChaos: { value: 0 }, uOpacity: { value: 0 }, uBurst: { value: 0 }, uExit: { value: 0 } };
+  const U = { uTime: { value: 0 }, uSize: { value: BASE }, uPR: { value: PR }, uChaos: { value: 0 }, uOpacity: { value: 0 }, uBurst: { value: 0 }, uExit: { value: 0 }, uClear: { value: 0 } };
   const points = new THREE.Points(geo, new THREE.ShaderMaterial({
     uniforms: U, transparent: true, depthWrite: false,
     vertexShader: /* glsl */`
       attribute vec3 color; attribute float aRand;
-      uniform float uTime, uSize, uPR, uChaos, uBurst, uExit;
-      varying vec3 vColor; varying float vTw;
+      uniform float uTime, uSize, uPR, uChaos, uBurst, uExit, uClear;
+      varying vec3 vColor; varying float vTw; varying float vFade;
       void main(){
         vec3 p = position; float t = uTime;
         vec3 dir = normalize(p + vec3(.0001, .0002, .0003));
@@ -236,35 +242,59 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
         gl_Position = projectionMatrix * mv;
         gl_PointSize = uSize * uPR * (.5 + aRand*.8) / -mv.z;
         vColor = color; vTw = .7 + .3*sin(t*2.2 + aRand*80.);
+        vec2 ndc = gl_Position.xy / gl_Position.w;
+        float e = length((ndc - vec2(0., -.06)) / vec2(.62, .5));          // ellipse around the headline
+        vFade = mix(1., .04 + .96 * smoothstep(.72, 1.15, e), uClear);
       }`,
     fragmentShader: /* glsl */`
-      uniform float uOpacity; varying vec3 vColor; varying float vTw;
+      uniform float uOpacity; varying vec3 vColor; varying float vTw; varying float vFade;
       void main(){
         float d = length(gl_PointCoord - .5);
-        gl_FragColor = vec4(vColor, smoothstep(.5, .32, d) * vTw * uOpacity);
+        gl_FragColor = vec4(vColor, smoothstep(.5, .32, d) * vTw * vFade * uOpacity);
       }`,
   }));
   points.frustumCulled = false;
   const pg = new THREE.Group(); pg.add(points); scene.add(pg);
 
-  // network lines on the sphere (scene 1)
-  const S1 = F[1].pos, cand = [];
-  for (let i = 0; i < 520; i++) cand.push(Math.floor(R() * SHELL));
-  const pairs = [];
-  for (let a = 0; a < cand.length; a++) {
-    const ia = cand[a] * 3, ds = [];
-    for (let b = 0; b < cand.length; b++) {
-      if (a === b) continue;
-      const ib = cand[b] * 3, dx = S1[ia] - S1[ib], dy = S1[ia + 1] - S1[ib + 1], dz = S1[ia + 2] - S1[ib + 2];
-      ds.push([dx * dx + dy * dy + dz * dz, cand[b]]);
-    }
-    ds.sort((x, y) => x[0] - y[0]);
-    for (let k = 0; k < 2; k++) if (ds[k][0] < 1.2) pairs.push(cand[a], ds[k][1]);
+  // globe effects (scene 1): crisp graticule, glowing arcs from London, market markers
+  const globeFx = new THREE.Group(); points.add(globeFx);
+  const gratMat = new THREE.LineBasicMaterial({ color: 0x1b8fb0, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+  const grat = [];
+  for (let lat = -60; lat <= 60; lat += 20) {
+    const pts = []; for (let lo = -180; lo <= 180; lo += 4) pts.push(latLon(lat, lo, RG * 1.002));
+    grat.push(new THREE.BufferGeometry().setFromPoints(pts));
   }
-  const linePos = new Float32Array(pairs.length * 3), lineGeo = new THREE.BufferGeometry();
-  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
-  const lineMat = new THREE.LineBasicMaterial({ color: 0x00a39b, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
-  const lines = new THREE.LineSegments(lineGeo, lineMat); lines.frustumCulled = false; points.add(lines);
+  for (let lo = -180; lo < 180; lo += 20) {
+    const pts = []; for (let la = -88; la <= 88; la += 4) pts.push(latLon(la, lo, RG * 1.002));
+    grat.push(new THREE.BufferGeometry().setFromPoints(pts));
+  }
+  grat.forEach((g) => globeFx.add(new THREE.Line(g, gratMat)));
+
+  const MARKETS = pings.map((el) => ({ el, lat: +el.dataset.lat, lon: +el.dataset.lon }));
+  const markerMats = [], ripples = [], arcs = [];
+  const hub = MARKETS.findIndex((m) => m.el.dataset.hub !== undefined);
+  MARKETS.forEach((m, k) => {
+    m.pos = latLon(m.lat, m.lon, RG * 1.01);
+    m.normal = m.pos.clone().normalize();
+    const mm = new THREE.MeshBasicMaterial({ color: k === hub ? 0x101d38 : 0x00a39b, transparent: true, opacity: 0, toneMapped: false });
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), mm); dot.position.copy(m.pos); globeFx.add(dot); markerMats.push(mm);
+    const rm = new THREE.MeshBasicMaterial({ color: 0x00c2b8, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, toneMapped: false });
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.09, 0.12, 40), rm);
+    ring.position.copy(m.pos); ring.lookAt(m.pos.clone().multiplyScalar(2)); globeFx.add(ring); ripples.push(ring);
+  });
+  if (hub >= 0) MARKETS.forEach((m, k) => {
+    if (k === hub) return;
+    const a = MARKETS[hub].pos, b = m.pos, mid = a.clone().add(b).multiplyScalar(0.5);
+    mid.setLength(RG + a.distanceTo(b) * 0.42);
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+    const coreM = new THREE.MeshBasicMaterial({ color: 0x3d7fe0, transparent: true, opacity: 0, toneMapped: false, depthWrite: false });
+    const glowM = new THREE.MeshBasicMaterial({ color: 0x00c2b8, transparent: true, opacity: 0, toneMapped: false, depthWrite: false, blending: THREE.AdditiveBlending });
+    const geoC = new THREE.TubeGeometry(curve, 96, 0.022, 8), geoG = new THREE.TubeGeometry(curve, 96, 0.06, 8);
+    const tube = new THREE.Mesh(geoC, coreM), glowT = new THREE.Mesh(geoG, glowM);
+    const spark = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), new THREE.MeshBasicMaterial({ color: 0xe9fffd, transparent: true, opacity: 0, toneMapped: false }));
+    globeFx.add(tube, glowT, spark);
+    arcs.push({ curve, coreM, glowM, tube, glowT, spark, idx: geoC.index.count, k });
+  });
 
   // ================= PODIUM (scene 2 onward) =================
   const stage = new THREE.Group(); scene.add(stage);
@@ -294,8 +324,10 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     const a = (k / chips.length) * Math.PI * 2 + 0.3;
     o.userData = {
       jitter: new THREE.Vector3(gauss() * 0.5, gauss() * 0.5, gauss() * 0.3),
-      to: new THREE.Vector3(Math.cos(a) * 6.4, Y0 + 0.4 + Math.sin(a) * 2.6, (R() - 0.5) * 3),
-      rot: new THREE.Euler(gauss() * 0.4, gauss() * 0.6, gauss() * 0.35),
+      // ellipse around the copy; the lower cards drop further and spread wider so they clear the headline
+      to: new THREE.Vector3(Math.cos(a) * (Math.sin(a) < -0.6 ? 7.4 : Math.abs(Math.sin(a)) < 0.6 ? 7.4 : 6.6), Y0 + 0.4 + Math.sin(a) * 2.6 - (Math.sin(a) < -0.6 ? 1.15 : 0), (R() - 0.5) * 1.2),
+      // gentle, alternating tilt (readable, still scattered)
+      rot: new THREE.Euler((k % 2 ? 1 : -1) * (0.08 + R() * 0.1), (k % 3 - 1) * 0.22, (k % 2 ? -1 : 1) * (0.06 + R() * 0.1)),
     };
     return o;
   });
@@ -323,7 +355,8 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   const clock = new THREE.Clock();
   const cv = new THREE.Vector3(), tv = new THREE.Vector3();
   const gatherTo = new THREE.Vector3();
-  let sCur = 0, lastS = -1, spin = 0, lastBg = '', cardsVisible = true;
+  let sCur = 0, lastS = -1, spin = 0, lastBg = '', cardsVisible = true, pingsShown = true;
+  const camDir = new THREE.Vector3(), wpos = new THREE.Vector3(), wnorm = new THREE.Vector3();
 
   function tick() {
     const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
@@ -409,27 +442,63 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
         geo.attributes.position.needsUpdate = true; geo.attributes.color.needsUpdate = true;
         lastS = ps;
       }
-      const lo = 0.35 * Math.max(0, 1 - Math.abs(ps - 1) * 5);
-      lineMat.opacity = lo; lines.visible = lo > 0.001;
-      if (lines.visible) {
-        for (let k = 0; k < pairs.length; k++) { const j = pairs[k] * 3; linePos[k * 3] = pos[j]; linePos[k * 3 + 1] = pos[j + 1]; linePos[k * 3 + 2] = pos[j + 2]; }
-        lineGeo.attributes.position.needsUpdate = true;
-      }
       const sp = PL(PSPIN);
       spin += dt * 0.12 * sp * (reduced ? 0.3 : 1);
       const home = Math.round(spin / (Math.PI * 2)) * Math.PI * 2;
       spin += (home - spin) * (1 - sp) * Math.min(1, dt * 1.6);
-      pg.rotation.y = spin;
+      pg.rotation.set(0.32 * (pi === 0 ? pe : 1), spin - 1.8, 0);   // UK/Europe face the viewer, tilted north
       const onOrb = pi === 0 ? 1 - pe : 0;
       pg.position.set(PL(PX) * layoutK + (heroX - PX[0] * layoutK) * onOrb, Y0 + heroY * onOrb, 0);
       pg.scale.setScalar(mobileK * (1 + (blobScale / mobileK - 1) * onOrb));
       U.uChaos.value = PL(PCHAOS);
       U.uBurst.value = 0.9 * smooth(0.45, 1, h) * onOrb;
       U.uExit.value = state.fragExit;
-      U.uSize.value = BASE;
+      U.uClear.value = smooth(1.35, 1.9, s);
+      U.uSize.value = BASE * PL(PSIZE);
       U.uTime.value = t;
     }
     U.uOpacity.value = pOp;
+
+    // ---------- globe effects + flag pings (scene 1) ----------
+    const gv = Math.max(0, 1 - Math.abs(s - 1) * 3.2) * (points.visible ? 1 : 0);
+    globeFx.visible = gv > 0.002;
+    gratMat.opacity = 0.55 * gv;
+    if (globeFx.visible) {
+      markerMats.forEach((m) => (m.opacity = gv));
+      ripples.forEach((r, k) => { const p = (t * 0.55 + k * 0.37) % 1; r.scale.setScalar(1 + p * 2.6); r.material.opacity = gv * (1 - p) * 0.9; });
+      arcs.forEach((a, n) => {
+        const grow = clamp(gv * 1.4 - n * 0.08, 0, 1);
+        a.tube.geometry.setDrawRange(0, Math.floor(a.idx * grow / 6) * 6);
+        a.glowT.geometry.setDrawRange(0, Math.floor(a.idx * grow / 6) * 6);
+        a.coreM.opacity = gv; a.glowM.opacity = 0.5 * gv;
+        const u = (t * 0.32 + n * 0.21) % 1;
+        a.spark.position.copy(a.curve.getPointAt(u * grow));
+        a.spark.material.opacity = gv * (grow > 0.98 ? 1 : 0);
+      });
+    }
+    const showPings = gv > 0.05 && !mob;
+    if (showPings || pingsShown) {
+      pg.updateMatrixWorld(true);
+      camera.getWorldDirection(camDir);
+      cv.setFromMatrixPosition(pg.matrixWorld).project(camera);
+      const gcx = (cv.x + 1) / 2 * W;
+      MARKETS.forEach((m, k) => {
+        if (!showPings) { m.el.style.opacity = 0; return; }
+        wpos.copy(m.pos).applyMatrix4(points.matrixWorld);
+        wnorm.copy(m.normal).transformDirection(points.matrixWorld);
+        const facing = clamp((-wnorm.dot(camDir) - 0.15) / 0.5, 0, 1);
+        const cyc = (t * 0.11 + k / MARKETS.length) % 1;                  // each ping pops in turn
+        const life = smooth(0, 0.05, cyc) * (1 - smooth(0.3, 0.37, cyc));
+        cv.copy(wpos).project(camera);
+        const x = (cv.x + 1) / 2 * W, y = (1 - cv.y) / 2 * H;
+        const pop = 0.85 + 0.15 * smooth(0, 0.05, cyc);
+        const flip = x > gcx;                                               // right half of the globe: pill opens to the left
+        if (flip !== m.flip) { m.el.classList.toggle('flip', flip); m.flip = flip; }
+        m.el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(${flip ? 'calc(-100% + 14px)' : '-14px'}, calc(-100% - 10px)) scale(${pop.toFixed(3)})`;
+        m.el.style.opacity = (life * facing * gv).toFixed(3);
+      });
+      pingsShown = showPings;
+    }
 
     // ---------- podium ----------
     stage.visible = podK > 0.005;
@@ -456,7 +525,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       o.position.copy(tv);
       const r = spread * (1 - gather);
       o.rotation.set(u.rot.x * r, u.rot.y * r, u.rot.z * r);
-      o.scale.setScalar(0.009 * (0.35 + 0.65 * spread) * (1 - 0.7 * gather) * (mob ? 0.8 : 1));
+      o.scale.setScalar(0.0118 * (0.35 + 0.65 * spread) * (1 - 0.7 * gather) * (mob ? 0.8 : 1));
       o.element.style.opacity = cOp.toFixed(3); o.visible = cOp > 0.005;
     });
 
