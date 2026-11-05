@@ -56,26 +56,8 @@
     <div class="gchip" data-chip><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>Special school</small></div>
     <div class="gchip" data-chip><span class="chip c-gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small></div>
 
-    <!-- scene 4: live board on the podium -->
-    <div class="gpanel sp" id="spMarket" data-scene="4">
-      <div class="live-head"><span class="live-dot"></span><b>Live marketplace</b><span class="live-count"><em class="live-n">66</em> live now</span></div>
-      <div class="live-tabs"><span class="on">Global</span><span>UK &amp; Ireland</span><span>International</span></div>
-      <ul class="live-list" id="liveList"></ul>
-      <p class="live-foot">Full titles, buyers and named contacts unlock when you sign in.</p>
-    </div>
-    <!-- scene 5: pipeline on the podium -->
-    <div class="gpanel sp" id="spDecide" data-scene="5">
-      <div class="sp-head"><span class="sp-ic">◎</span><div><b>NHS Trust · North</b><small>Growth CRM pipeline</small></div></div>
-      <div class="pipe">
-        <div class="pipe-col"><h6>Signal</h6><i></i><i></i><i></i></div>
-        <div class="pipe-col"><h6>Contacted</h6><i></i><i></i></div>
-        <div class="pipe-col"><h6>Meeting</h6><i class="hi"></i></div>
-        <div class="pipe-col"><h6>Won</h6><i class="won"></i></div>
-      </div>
-      <div class="dm-row"><span class="avatar sm">HW</span><div><b>Head of Workforce</b><small>Named decision-maker · verified contact</small></div><em>✓</em></div>
-    </div>
-    <!-- scene 6: AI match on the podium (night) -->
-    <div class="gpanel sp sp-dark" id="spNight" data-scene="6">
+    <!-- scene 4: AI match on the podium (night) -->
+    <div class="gpanel sp sp-dark" id="spNight" data-scene="4">
       <div class="match">
         <svg viewBox="0 0 120 120" class="ring"><circle cx="60" cy="60" r="50"/><circle cx="60" cy="60" r="50" class="arc"/></svg>
         <div class="match-score"><b>92%</b><small>match</small></div>
@@ -85,15 +67,18 @@
         <div><span class="dot teal"></span>Market scan complete<em>01:40</em></div>
         <div><span class="dot sky"></span>4 new tenders analysed<em>02:05</em></div>
         <div><span class="dot teal"></span>Matches ready for review<em>02:14</em></div>
+        <div><span class="dot sky"></span>Decision-makers enriched<em>03:30</em></div>
       </div>
     </div>
-    <!-- scene 7: morning digest on the podium -->
-    <div class="gpanel sp" id="spMorning" data-scene="7">
+    <!-- scene 5: morning digest on the podium -->
+    <div class="gpanel sp" id="spMorning" data-scene="5">
       <div class="digest-head"><span>☀</span><b>Your morning digest</b><small>07:00</small></div>
       <div class="mock-row"><span class="dot amber"></span>Special school · Teaching Assistant<em>new</em></div>
       <div class="mock-row"><span class="dot amber"></span>Residential care · Support Worker<em>new</em></div>
       <div class="mock-row"><span class="dot teal"></span>Care provider · Registered Manager<em>2d</em></div>
       <div class="mock-row"><span class="dot amber"></span>SEND school · Speech &amp; Language<em>new</em></div>
+      <div class="mock-row"><span class="dot teal"></span>Children's home · Deputy Manager<em>new</em></div>
+      <div class="digest-foot"><b>14</b> new since yesterday · 3 match your profile</div>
     </div>
   </div>
 
@@ -109,7 +94,7 @@
       <ul class="nav-links">
         <li><a href="#ecosystem">Platform</a></li>
         <li><a href="#verified">For clinicians</a></li>
-        <li><a href="#decide">For organisations</a></li>
+        <li><a href="#connected">For organisations</a></li>
         <li><a href="#morning">SEND &amp; Care</a></li>
         <li><a href="#join">Pricing</a></li>
         <li><a href="story.html">Our story</a></li>
@@ -144,7 +129,7 @@
           <p class="lead hero-lead">Qura is the 24/7 healthcare marketplace and Growth CRM that brings clinicians, providers and suppliers into one verified ecosystem, across the NHS, private and international markets.</p>
           <div class="hero-ctas">
             <a href="#verified" class="btn btn-primary btn-lg magnetic"><span>Create your free profile</span></a>
-            <a href="#decide" class="btn btn-ghost btn-lg magnetic"><span>For organisations →</span></a>
+            <a href="#connected" class="btn btn-ghost btn-lg magnetic"><span>For organisations →</span></a>
           </div>
           <ul class="hero-trust">
             <li><i>✓</i>Free for clinicians, always</li>
@@ -223,35 +208,7 @@
       </div>
     </section>
 
-    <!-- 4 · THE MARKET -->
-    <section id="market" class="scene split right" data-stage>
-      <div class="container">
-        <div class="col-text">
-          <p class="eyebrow reveal"><span></span>Live healthcare marketplace</p>
-          <h2 class="h2" data-split>The market <em>never sleeps.</em></h2>
-          <p class="body reveal">Vacancies, contracts, tenders and procurement opportunities across the NHS, private healthcare and international markets, updated around the clock.</p>
-          <div class="markets reveal"><span>United Kingdom</span><span>Ireland</span><span>Nigeria</span><span>Australia</span><span>United States</span><span>European Union</span></div>
-          <a href="#" class="btn btn-primary btn-lg magnetic sec-cta reveal"><span>Explore the marketplace</span></a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5 · KNOW WHO DECIDES -->
-    <section id="decide" class="scene split" data-stage>
-      <div class="container">
-        <div class="col-text">
-          <p class="eyebrow reveal"><span></span>Growth CRM · for suppliers &amp; agencies</p>
-          <h2 class="h2" data-split>Know who decides. <em>Grow what matters.</em></h2>
-          <p class="body reveal">Identify healthcare organisations, discover named decision-makers, manage relationships and track every opportunity to close.</p>
-          <div class="stats reveal">
-            <div class="stat"><b data-count="3800" data-suffix="+">0</b><span>Named decision-makers</span></div>
-            <div class="stat"><b data-count="5">0</b><span>Markets and counting</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6 · NEVER SLEEPS (night) -->
+    <!-- 4 · NEVER SLEEPS (night) -->
     <section id="night" class="scene split right dark" data-stage>
       <div class="container">
         <div class="col-text">
@@ -262,42 +219,85 @@
       </div>
     </section>
 
-    <!-- 7 · EVERY MORNING (sunrise) -->
+    <!-- 5 · EVERY MORNING (sunrise) -->
     <section id="morning" class="scene split" data-stage>
       <div class="container">
         <div class="col-text">
           <p class="eyebrow reveal"><span></span>SEND &amp; Care intelligence</p>
-          <h2 class="h2" data-split>Every special school. Every vacancy. <em>Every morning.</em></h2>
+          <h2 class="h2" data-split>New roles in your inbox. <em>Every morning.</em></h2>
           <p class="body reveal">Sector intelligence for specialist education and care, delivered before your first coffee.</p>
         </div>
       </div>
     </section>
 
-    <!-- 8 · CONNECTED -->
+    <!-- 6 · SEE THE MARKET MOVING (film + live board) -->
+    <section id="film" class="scene film" data-stage>
+      <div class="container">
+        <div class="film-head">
+          <p class="eyebrow center"><span></span>See it in action</p>
+          <h2 class="h2 center" data-split>See the market <em>moving.</em></h2>
+          <p class="body center film-sub">98 seconds on what Qura does for every lens, now with SEND and Care Intelligence.</p>
+        </div>
+        <div class="film-grid">
+          <div class="film-frame">
+            <video id="filmVideo" preload="metadata" playsinline>
+              <source src="assets/qura-overview.mp4" type="video/mp4" />
+            </video>
+            <div class="film-poster">
+              <div class="film-glow"></div>
+              <h3 class="film-title">One platform. <em>Every lens.</em></h3>
+              <div class="lens">
+                <span><i>▣</i>Hospitals &amp; providers</span>
+                <span><i>◈</i>Workforce suppliers</span>
+                <span><i>✚</i>Medical suppliers</span>
+                <span><i>♥</i>GP &amp; care</span>
+                <span><i>●</i>Clinicians</span>
+              </div>
+              <button class="film-play" aria-label="Play the Qura overview video"><span></span></button>
+              <p class="film-len">Watch the overview · 1:38</p>
+              <p class="film-note" role="status"></p>
+            </div>
+          </div>
+          <aside class="live-board">
+            <div class="live-head"><span class="live-dot"></span><b>Live marketplace</b><span class="live-count"><em class="live-n">65</em> live now</span></div>
+            <div class="live-tabs"><span class="on">Global</span><span>UK &amp; Ireland</span><span>International</span></div>
+            <ul class="live-list" id="liveList"></ul>
+            <p class="live-foot"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Full titles, buyers and named contacts unlock when you sign in.</p>
+            <a href="#join" class="btn live-cta magnetic"><span>Sign in to see every live tender →</span></a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · CONNECTED -->
     <section id="connected" class="scene connected" data-stage>
       <div class="container">
         <div class="conn-head">
           <p class="eyebrow center reveal"><span></span>The Qura ecosystem</p>
           <h2 class="h2 center" data-split>One platform. <em>Three ways forward.</em></h2>
+          <p class="body center reveal">Three connected communities. A stronger healthcare sector.</p>
         </div>
         <div class="ways">
-          <a class="way glass reveal" href="#verified">
-            <span class="way-ic teal"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c1-3.5 3.3-5 6-5s5 1.5 6 5M15 15c2.5 0 4.5 1.2 5.5 4"/></svg></span>
-            <h3>Clinicians</h3><p>Be seen for your expertise. One verified profile, every opportunity.</p><span class="way-link">For clinicians →</span>
+          <a class="way featured" href="#verified">
+            <div class="way-photo"><img src="assets/community-professionals.webp" alt="Healthcare professional checking roles on a tablet" width="427" height="261" loading="lazy" /></div>
+            <span class="way-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c1-3.5 3.3-5 6-5s5 1.5 6 5M15 15c2.5 0 4.5 1.2 5.5 4"/></svg></span>
+            <h3>Healthcare professionals</h3><p>Create your free profile, get verified and hear about matching roles.</p><span class="way-link">Create your free profile <i>→</i></span>
           </a>
-          <a class="way glass reveal" href="#decide">
-            <span class="way-ic navy"><svg viewBox="0 0 24 24"><path d="M4 21V8h16v13M9 21v-5h6v5M12 10v4M10 12h4M8 8V4h8v4"/></svg></span>
-            <h3>NHS trusts &amp; organisations</h3><p>Find the right connections. Discover talent and manage demand in one place.</p><span class="way-link">For organisations →</span>
+          <a class="way" href="#film">
+            <div class="way-photo"><img src="assets/community-providers.webp" alt="Healthcare provider team in a meeting" width="427" height="261" loading="lazy" /></div>
+            <span class="way-ic"><svg viewBox="0 0 24 24"><path d="M4 21V8h16v13M9 21v-5h6v5M12 10v4M10 12h4M8 8V4h8v4"/></svg></span>
+            <h3>Healthcare providers</h3><p>Post roles and find verified clinicians across every setting.</p><span class="way-link">For healthcare providers <i>→</i></span>
           </a>
-          <a class="way glass reveal" href="#decide">
-            <span class="way-ic sky"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span>
-            <h3>Suppliers &amp; agencies</h3><p>Discover your next opportunity. Verified demand and the right decision-makers.</p><span class="way-link">For suppliers →</span>
+          <a class="way" href="#film">
+            <div class="way-photo"><img src="assets/community-suppliers.webp" alt="Workforce supplier on a call at her desk" width="427" height="261" loading="lazy" /></div>
+            <span class="way-ic"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M8 7v13M16 7v13"/></svg></span>
+            <h3>Workforce suppliers</h3><p>Live demand, named decision-makers and a verified supplier profile.</p><span class="way-link">For workforce suppliers <i>→</i></span>
           </a>
         </div>
       </div>
     </section>
 
-    <!-- 9 · JOIN -->
+    <!-- 8 · JOIN -->
     <section id="join" class="scene join" data-stage>
       <div class="container">
         <div class="offer-pill reveal"><span class="pulse"></span>Founding Partner offer · ends 31 December 2026</div>

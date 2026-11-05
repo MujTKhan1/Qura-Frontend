@@ -52,7 +52,7 @@ function computeStage() {
 }
 
 // TEMP: scene number badge for review (remove before launch)
-const SCENES = ['Hero', 'Ecosystem', 'Fragmented', 'Verified', 'The market', 'Know who decides', 'Night · AI', 'Morning · SEND & Care', 'Connected', 'Join'];
+const SCENES = ['Hero', 'Ecosystem', 'Fragmented', 'Verified', 'Night · AI', 'Day · SEND & Care', 'See the market moving', 'Connected', 'Join'];
 const tagN = $('#sceneTag b'), tagT = $('#sceneTag span');
 let tagLast = -1;
 function updateTag(s) {
@@ -112,7 +112,16 @@ ScrollTrigger.create({
 const rot = $('.rotator');
 const words = $$('.rw', rot);
 let wi = 0;
-const sizeRot = () => { rot.style.width = words[wi].getBoundingClientRect().width + 'px'; };
+// long words shrink so the line never runs into the orb; width includes the italic overhang
+const sizeRot = () => {
+  const avail = (mobile ? innerWidth - 32 : innerWidth * 0.6) - rot.getBoundingClientRect().left;
+  words.forEach((w) => {
+    w.style.fontSize = '';
+    const nat = w.getBoundingClientRect().width;
+    w.style.fontSize = nat > avail ? (avail / nat).toFixed(3) + 'em' : '';
+  });
+  rot.style.width = words[wi].getBoundingClientRect().width + parseFloat(getComputedStyle(rot).paddingRight) + 'px';
+};
 function nextWord() {
   const cur = words[wi]; wi = (wi + 1) % words.length; const nxt = words[wi];
   cur.classList.remove('on');
@@ -194,44 +203,90 @@ $$('[data-count]').forEach((el) => {
   });
 });
 
-/* ---------- Scene 4: live marketplace ticker (on the podium) ---------- */
+/* ---------- Scene 6: live marketplace ticker (beside the film) ---------- */
+// [title, sector (optional), place, closes-in days]; the blurred tail mimics the locked full title
 const pool = [
-  ['Fully Managed Renal Services', 'London · Commissioning organisation', 'Closes in 29 days'],
-  ['Community Smoking Cessation', 'Wolverhampton · Commissioning organisation', 'Closes in 27 days'],
-  ['BME Mental Health Provision', 'Cardiff · Named contacts', 'Closes in 24 days'],
-  ['Band 6 Sonographer', 'Leeds · NHS Trust', 'Posted 4m ago'],
-  ['Locum GP Sessions', 'Bristol · GP practice', 'Posted 12m ago'],
-  ['Radiography Workforce Supply', 'Dublin · Health service', 'Closes in 18 days'],
-  ['Registered Nurses, ICU', 'Sydney · Private hospital', 'Posted 1h ago'],
-  ['SEND Teaching Assistants', 'Manchester · Special school', 'Posted 22m ago'],
+  ['Procurement for Additional NHS', '', 'Cardiff', 30],
+  ['Flexible Framework Agreement', 'Mental Health & Substance Misuse', 'Ayr', 30],
+  ['Community Smoking Cessation', '', 'Wolverhampton', 28],
+  ['Smoking Cessation', '', 'Wolverhampton', 26],
+  ['BME Mental Health', 'Mental Health & Substance Misuse', 'Cardiff', 23],
+  ['Fully Managed Renal Services', 'Renal', 'London', 29],
+  ['Radiography Workforce Supply', 'Diagnostics', 'Dublin', 18],
+  ['SEND Teaching Assistants', 'SEND & Care', 'Manchester', 21],
+  ['Registered Nurses, ICU', '', 'Sydney', 14],
 ];
 const list = $('#liveList');
 let pi = 0;
-const li = ([t, s, c]) => { const el = document.createElement('li'); el.innerHTML = `<b>${t}</b><small>${s}</small><em>${c}</em>`; return el; };
-for (let k = 0; k < 4; k++) list.appendChild(li(pool[pi++ % pool.length]));
+const li = ([t, sec, place, d]) => {
+  const el = document.createElement('li');
+  el.innerHTML = `<i class="ld"></i><div class="lt"><b>${t} <span class="lock">provision of specialist services</span></b>`
+    + `<small>${sec ? `<em>${sec}</em> · ` : ''}${place} <span class="lock">commissioning organisation</span></small></div>`
+    + `<div class="lc"><small>Closes</small><b>in ${d} days</b></div>`;
+  return el;
+};
+for (let k = 0; k < 5; k++) list.appendChild(li(pool[pi++ % pool.length]));
 setInterval(() => {
   if (document.hidden) return;
   const el = li(pool[pi++ % pool.length]);
   list.prepend(el);
-  gsap.from(el, { height: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, duration: 0.7, ease: 'power3.out' });
-  gsap.fromTo(el, { backgroundColor: 'rgba(0,163,155,.10)' }, { backgroundColor: 'rgba(0,163,155,0)', duration: 2 });
+  gsap.from(el, { height: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0, duration: 0.7, ease: 'power3.out' });
+  gsap.fromTo(el, { boxShadow: '0 0 0 1px rgba(0,194,184,.8), 0 0 22px rgba(0,194,184,.45)' }, { boxShadow: '0 0 0 1px rgba(0,194,184,0), 0 0 0 rgba(0,194,184,0)', duration: 2.2 });
   const last = list.lastElementChild;
   gsap.to(last, { opacity: 0, duration: 0.4, onComplete: () => last.remove() });
-  const n = 64 + Math.floor(Math.random() * 8);
+  const n = 63 + Math.floor(Math.random() * 6);
   $$('.live-n').forEach((x) => (x.textContent = n));
-}, 2800);
+}, 3200);
 
-/* ---------- Scene 6: AI match ring fills when night falls ---------- */
+/* ---------- Scene 6: the film. Frame swings up flat, lenses pop, the board slides in ---------- */
+const filmTl = gsap.timeline({
+  scrollTrigger: mobile
+    ? { trigger: '#film', start: 'top 80%', end: 'top 20%', scrub: 1 }
+    : { trigger: '#film', start: 'top top', end: '+=120%', scrub: 1, pin: true, refreshPriority: -1 },   // after the verified pin above it
+});
+filmTl
+  .fromTo('.film-head', { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, 0)
+  .fromTo('.film-frame', { rotationX: 28, rotationY: -10, scale: 0.78, y: 160, opacity: 0, transformPerspective: 1600 },
+    { rotationX: 0, rotationY: 0, scale: 1, y: 0, opacity: 1, duration: 1.4, ease: 'power2.out' }, 0.1)
+  .fromTo('.film-title', { y: 40, opacity: 0, filter: 'blur(10px)' }, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.6 }, 0.9)
+  .fromTo('.lens span', { y: 26, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, stagger: 0.09, ease: 'back.out(2)' }, 1.15)
+  .fromTo('.film-play', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.2)' }, 1.5)
+  .fromTo('.live-board', { x: 140, rotationY: -24, opacity: 0, transformPerspective: 1600 },
+    { x: 0, rotationY: 0, opacity: 1, duration: 1.1, ease: 'power2.out' }, 0.7)
+  .fromTo('.live-cta', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, 1.8)
+  .to({}, { duration: 0.6 });
+
+const video = $('#filmVideo'), poster = $('.film-poster'), note = $('.film-note');
+$('.film-play').addEventListener('click', async () => {
+  try {
+    if (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) throw new Error('no video file');
+    await video.play();
+    video.controls = true;
+    gsap.to(poster, { opacity: 0, scale: 1.04, duration: 0.6, ease: 'power2.inOut', onComplete: () => (poster.style.display = 'none') });
+  } catch {
+    note.textContent = 'Video file not added yet (assets/qura-overview.mp4)';
+    gsap.fromTo(note, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 });
+  }
+});
+
+/* ---------- Scene 7: community cards rise in 3D, photos settle ---------- */
+gsap.fromTo('.way', { y: 120, rotationX: 22, opacity: 0, transformPerspective: 1400, transformOrigin: '50% 100%' },
+  { y: 0, rotationX: 0, opacity: 1, duration: 1.2, stagger: 0.14, ease: 'expo.out', scrollTrigger: { trigger: '.ways', start: 'top 85%', toggleActions: 'play none none reverse' } });
+$$('.way-photo img').forEach((img) => {
+  gsap.fromTo(img, { scale: 1.25, yPercent: -6 }, { scale: 1.02, yPercent: 0, ease: 'none', scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom 35%', scrub: true } });
+});
+
+/* ---------- Scene 4: AI match ring fills when night falls ---------- */
 ScrollTrigger.create({
   trigger: '#night', start: 'top 55%',
   onEnter: () => gsap.to('#spNight .arc', { strokeDashoffset: 314 * 0.08, duration: 1.8, ease: 'power3.out' }),
   onLeaveBack: () => gsap.set('#spNight .arc', { strokeDashoffset: 314 }),
 });
 
-/* ---------- Scene 7: digest rows arrive like mail ---------- */
+/* ---------- Scene 5: digest rows arrive like mail ---------- */
 ScrollTrigger.create({
   trigger: '#morning', start: 'top 55%',
-  onEnter: () => gsap.fromTo('#spMorning .mock-row', { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.25, ease: 'power3.out' }),
+  onEnter: () => gsap.fromTo('#spMorning .mock-row, #spMorning .digest-foot', { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.25, ease: 'power3.out' }),
 });
 
 /* ---------- Scene 3: verification (pinned on desktop) ---------- */

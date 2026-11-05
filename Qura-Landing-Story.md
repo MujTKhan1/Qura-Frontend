@@ -9,12 +9,11 @@ A temporary badge in the bottom-left corner of the page shows the scene number w
 | **1** | **Ecosystem:** "Three communities. *One connected* healthcare sector." plus 4 stats | Clinical white | The particles form a turning network sphere with connecting lines |
 | **2** | **Fragmented:** "Healthcare is *fragmented.*" → "Roles here. Tenders there." → "Hours lost to… *stale data.*" | Cool grey-blue | The sphere bursts and 8 glass fragment cards fly out; the podium rises. The particles then **spread and leave the screen**, leaving **only the cards** |
 | **3** | **Verified:** "Get verified once. *Be seen everywhere.*" | Mint | The fragment cards fly into the verified profile card (with the sonographer photo); the checks tick and the *Verified* stamp lands |
-| **4** | **The market never sleeps** | Pale sky | The **live marketplace board** stands on the podium as a glass panel |
-| **5** | **Know who decides** | Periwinkle | A glass **Growth CRM pipeline** panel with a named decision-maker stands on the podium |
-| **6** | **Working while you sleep** | **Night** navy | A dark glass **92% AI match** panel, with an overnight activity log; the podium glows |
-| **7** | **Every morning** (SEND and care) | **Sunrise** peach | A glass **07:00 morning digest** panel; its rows arrive one by one |
-| **8** | **One platform. *Three ways forward.*** | White | Three cards: clinicians, organisations, suppliers |
-| **9** | **Join:** "12 months of Qura Growth, *free.*" | White with a teal tint | The camera rises to look straight down on the podium's glowing rings |
+| **4** | **Night:** "Working *while you sleep.*" | **Night** navy | A large dark glass **92% AI match** panel, with an overnight activity log; the podium glows |
+| **5** | **Day:** "New roles in your inbox. *Every morning.*" (SEND and care) | **Sunrise** peach | A large glass **07:00 morning digest** panel; its rows arrive one by one |
+| **6** | **See the market moving** (film + live marketplace) | Pale blue-grey | The podium sinks away. Pinned scroll: the video frame swings up from a 3D tilt to flat, the five lens chips pop in and the play button lands, while the dark **live marketplace** board slides in from the right and new tenders keep arriving. The video file goes in `assets/qura-overview.mp4` |
+| **7** | **One platform. *Three ways forward.*** | White | Three photo cards (professionals, providers, workforce suppliers) rise in 3D one after another; the photos settle as you scroll |
+| **8** | **Join:** "12 months of Qura Growth, *free.*" | White with a teal tint | The podium returns and the camera rises to look straight down on its glowing rings |
 
 **Rules:**
 - **Particles appear only in scenes 0–2.** They leave the screen during scene 2 and are not used again on the landing page.
