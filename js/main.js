@@ -38,7 +38,7 @@ let scene = null;
 try {
   scene = initScene({
     canvas: $('#webgl'), cssRoot: $('#css3d'),
-    orbitCards: $$('.oc'), chips: $$('[data-chip]'), panels: $$('.sp'), pings: $$('.gping'),
+    orbitCards: $$('.oc'), chips: $$('[data-chip]'), colLabels: $$('[data-collabel]'), panels: $$('.sp'), pings: $$('.gping'),
     mobile, reduced,
   });
 } catch (err) { console.warn('3D scene unavailable', err); }
@@ -51,8 +51,10 @@ function computeStage() {
   return s;
 }
 
+const fragEl = $('#fragmented');
 gsap.ticker.add(() => {
   const s = computeStage();
+  if (scene) scene.state.fragOut = clamp(-fragEl.getBoundingClientRect().top / (innerHeight * 0.5), 0, 1);   // page 2 scrolling away after its pin
   if (!scene) return; scene.state.target = s; scene.tick();
 });
 
@@ -159,22 +161,27 @@ gsap.timeline({
   .to('.hero-band', { opacity: 0, duration: 0.4 }, 0)
   .to({}, { duration: 1.6 });
 
-/* ---------- Scene 2: fragmented — particles leave, cards stay ---------- */
+/* ---------- Scene 2: problem → fix → how (pinned) ----------
+   act 1 (0–.34): the problem; each card gets a red-ink problem stamp, the particles leave
+   act 2 (.36–.66): "Qura puts it back together", cards fly into a three-column board and flip to their fixed side
+   act 3 (.66–1): the columns are named after the module that fixed them (scene.js reads state.frag) */
 const blurIn = { opacity: 0, y: 50, filter: 'blur(12px)' };
 const blurOn = { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power2.out' };
 const blurOut = { opacity: 0, y: -50, filter: 'blur(12px)', duration: 1, ease: 'power2.in' };
 gsap.timeline({
   scrollTrigger: {
-    trigger: '#fragmented', start: 'top top', end: mobile ? '+=130%' : '+=180%', scrub: 1, pin: true,
-    onUpdate: (self) => { if (scene) scene.state.fragExit = clamp((self.progress - 0.3) / 0.4, 0, 1); },
+    trigger: '#fragmented', start: 'top top', end: mobile ? '+=240%' : '+=320%', scrub: 1, pin: true,
+    onUpdate: (self) => { if (scene) { scene.state.frag = self.progress; scene.state.fragExit = clamp((self.progress - 0.16) / 0.24, 0, 1); } },
   },
 })
   .fromTo('.frag-line[data-i="0"]', blurIn, blurOn, 0)
-  .to('.frag-line[data-i="0"]', blurOut, 1.4)
-  .fromTo('.frag-line[data-i="1"]', blurIn, blurOn, 2)
-  .to('.frag-line[data-i="1"]', blurOut, 3.4)
-  .fromTo('.frag-line[data-i="2"]', blurIn, blurOn, 4)
-  .to({}, { duration: 1 });
+  .to('.frag-line[data-i="0"]', blurOut, 1.5)
+  .set('.frag-line[data-i="1"]', { opacity: 1 }, 1.9)
+  .fromTo('.frag-three > span', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.6, stagger: 0.35, ease: 'power2.out' }, 1.9)
+  .to('.frag-line[data-i="1"]', blurOut, 3.2)
+  .fromTo('.frag-line[data-i="2"]', blurIn, blurOn, 3.7)
+  .fromTo('.frag-line[data-i="3"]', blurIn, blurOn, 6.8)
+  .to({}, { duration: 2.2 });
 
 /* ---------- Reveals ---------- */
 $$('.reveal').forEach((el) => {

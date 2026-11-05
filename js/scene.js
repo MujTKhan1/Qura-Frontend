@@ -122,7 +122,7 @@ function ecgPath(w, amp, z) {
   return path;
 }
 
-export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels = [], pings = [], mobile = false, reduced = false }) {
+export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], colLabels = [], panels = [], pings = [], mobile = false, reduced = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   const PR = Math.min(window.devicePixelRatio || 1, 1.75);
   renderer.setPixelRatio(PR);
@@ -139,7 +139,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
   camera.position.set(0, Y0, 13.6);
 
-  const state = { target: 0, intro: 0, hero: 0, fragExit: 0 };
+  const state = { target: 0, intro: 0, hero: 0, fragExit: 0, frag: 0, fragOut: 0 };   // frag: progress through the pinned problem → fix sequence
   const mouse = { x: 0, y: 0 };
   addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; }, { passive: true });
 
@@ -388,9 +388,25 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       to: new THREE.Vector3(Math.cos(a) * (Math.sin(a) < -0.6 ? 7.4 : Math.abs(Math.sin(a)) < 0.6 ? 7.4 : 6.6), Y0 + 0.4 + Math.sin(a) * 2.6 - (Math.sin(a) < -0.6 ? 1.15 : 0), (R() - 0.5) * 1.2),
       // gentle, alternating tilt (readable, still scattered)
       rot: new THREE.Euler((k % 2 ? 1 : -1) * (0.08 + R() * 0.1), (k % 3 - 1) * 0.22, (k % 2 ? -1 : 1) * (0.06 + R() * 0.1)),
+      col: +el.dataset.col, row: +el.dataset.row, nurse: el.dataset.key === 'nurse',
+      faces: [...el.querySelectorAll('.gc-face')], stamp: el.querySelector('.gc-stamp'), lastSt: -1, lastOp: -1, flipped: false,
     };
     return o;
   });
+  const colCount = [0, 0, 0]; chipObjs.forEach((o) => colCount[o.userData.col]++);
+  // board slot (act 2/3): three columns, rows centred in each column; on phones a 2 × 4 grid in card order
+  const boardPos = (o, k, out) => {
+    const u = o.userData;
+    if (mob) return out.set((k % 2 ? 1.05 : -1.05), 0.7 + 1.6 - Math.floor(k / 2) * 1.05, 0.2);
+    const n = colCount[u.col];
+    return out.set((u.col - 1) * 4.4 * layoutK, 1.1 + ((n - 1) / 2 - u.row) * 1.38, 0.2);
+  };
+  const labelObjs = colLabels.map((el) => {
+    const o = toCss(el, cssWorld, 0.0125);
+    o.userData = { col: +el.dataset.collabel, lastOp: -1, lastMod: -1 };
+    return o;
+  });
+  const bp = new THREE.Vector3();
   const PANEL_S = 0.0132;                              // scene panels: big and readable
   const panelObjs = panels.map((el) => {
     const h = el.offsetHeight || 420;
@@ -573,9 +589,12 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     }
 
 
-    // fragment cards: burst out of the sphere, hover around the copy, then fly into the verified card
-    const spread = smooth(1.05, 1.9, s), gather = smooth(2.15, 2.85, s);
-    const cOp = smooth(1.1, 1.55, s) * (1 - smooth(2.45, 2.9, s));
+    // scene 2 cards: burst out of the sphere and scatter (problem stamps land), then fly into a three-column
+    // board flipping to their fixed side; after the pin only the nurse's card flies on into the verified profile
+    const fp = state.frag;
+    const spread = smooth(1.05, 1.9, s), gather = smooth(2.2, 2.9, s);
+    const leave = state.fragOut;                                              // board scrolls away with the page (0 → 1 over half a screen)
+    const cOp = smooth(1.1, 1.55, s) * (1 - smooth(2.7, 2.98, s));
     const mk = mob ? 0.5 : 1;
     gatherTo.set(mob ? 0 : 4.0 * layoutK, mob ? Y0 + 1.5 : 2.9, 1.0);
     chipObjs.forEach((o, k) => {
@@ -583,13 +602,36 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       tv.set(3.3 * layoutK, Y0, 0).add(u.jitter);
       cv.set(u.to.x * mk, Y0 + (u.to.y - Y0) * (mob ? 1.3 : 1), u.to.z);
       tv.lerp(cv, spread);
-      tv.y += Math.sin(t * 0.8 + k) * 0.12 * spread;
-      tv.lerp(gatherTo, gather);
+      const bk = smooth(0.36 + k * 0.02, 0.56 + k * 0.02, fp);                 // this card's flight onto the board
+      tv.y += Math.sin(t * 0.8 + k) * 0.12 * spread * (1 - bk);
+      tv.lerp(boardPos(o, k, bp), bk);
+      tv.z += Math.sin(Math.PI * bk) * 1.2;                                   // lifts towards you mid-flight
+      const g = u.nurse ? gather : 0;
+      tv.lerp(gatherTo, g);
+      if (!u.nurse) tv.y += leave * 5.3;
       o.position.copy(tv);
-      const r = spread * (1 - gather);
-      o.rotation.set(u.rot.x * r, u.rot.y * r, u.rot.z * r);
-      o.scale.setScalar(0.0118 * (0.35 + 0.65 * spread) * (1 - 0.7 * gather) * (mob ? 0.8 : 1));
-      o.element.style.opacity = cOp.toFixed(3); o.visible = cOp > 0.005;
+      const r = spread * (1 - bk) * (1 - g);
+      const flip = Math.PI * smooth(0.25, 0.85, bk);
+      o.rotation.set(u.rot.x * r, u.rot.y * r + flip, u.rot.z * r);
+      const side = flip > Math.PI / 2;
+      if (side !== u.flipped) { o.element.classList.toggle('flipped', side); u.flipped = side; }
+      const sc = (mob ? 0.8 : 1) * (0.0118 + ((mob ? 0.0088 / 0.8 : 0.0125) - 0.0118) * bk);
+      o.scale.setScalar(sc * (0.35 + 0.65 * spread) * (1 - 0.7 * g));
+      const op = u.nurse ? cOp : cOp * (1 - smooth(0.2, 0.9, leave));
+      o.visible = op > 0.005;
+      if (Math.abs(op - u.lastOp) > 0.002) { u.faces.forEach((f) => (f.style.opacity = op.toFixed(3))); u.lastOp = op; }
+      const st = smooth(0.05 + k * 0.03, 0.09 + k * 0.03, fp);               // problem stamp lands, one card after another
+      if (Math.abs(st - u.lastSt) > 0.002) { u.stamp.style.setProperty('--st', st.toFixed(3)); u.lastSt = st; }
+    });
+    labelObjs.forEach((o) => {
+      const u = o.userData;
+      const op = mob ? 0 : smooth(0.58, 0.66, fp) * (1 - smooth(0.2, 0.9, leave));
+      o.visible = op > 0.005;
+      if (!o.visible) return;
+      o.position.set((u.col - 1) * 4.4 * layoutK, 1.1 + ((colCount[1] - 1) / 2) * 1.38 + 1.25 + leave * 5.3, 0.2);
+      if (Math.abs(op - u.lastOp) > 0.002) { o.element.style.opacity = op.toFixed(3); u.lastOp = op; }
+      const mod = smooth(0.7, 0.8, fp);
+      if (Math.abs(mod - u.lastMod) > 0.002) { o.element.style.setProperty('--mod', mod.toFixed(3)); u.lastMod = mod; }
     });
 
     // scene panels floating beside the copy

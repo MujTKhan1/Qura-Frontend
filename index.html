@@ -44,15 +44,44 @@
 
   <!-- 3D elements: placed in the scene by js/scene.js -->
   <div class="panel-src" aria-hidden="true">
-    <!-- scene 2 fragments -->
-    <div class="gchip" data-chip><span class="chip c-teal">Vacancy</span><b>Band 6 Sonographer</b><small>Leeds · NHS Trust</small></div>
-    <div class="gchip" data-chip><span class="chip c-sky">Tender</span><b>Renal services</b><small>London · 29 days left</small></div>
-    <div class="gchip" data-chip><span class="chip c-gray">CV</span><b>Registered Nurse</b><small>Unverified · PDF</small></div>
-    <div class="gchip" data-chip><span class="chip c-amber">Compliance</span><b>DBS · Right to work</b><small>2 documents missing</small></div>
-    <div class="gchip" data-chip><span class="chip c-sky">Contact</span><b>Head of Workforce</b><small>ICB · email unknown</small></div>
-    <div class="gchip" data-chip><span class="chip c-teal">Contract</span><b>Smoking cessation</b><small>Wolverhampton</small></div>
-    <div class="gchip" data-chip><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>Special school</small></div>
-    <div class="gchip" data-chip><span class="chip c-gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small></div>
+    <!-- scene 2 cards: the front shows the problem, the back (revealed by a 3D flip) shows Qura's fix.
+         data-col: 0 clinicians · 1 providers · 2 suppliers; data-row: slot on the board -->
+    <div class="gchip" data-chip data-col="1" data-row="0">
+      <div class="gc-face gc-front"><span class="chip c-teal">Vacancy</span><b>Band 6 Sonographer</b><small>Leeds · NHS Trust</small><span class="gc-stamp">3 weeks, no fit</span></div>
+      <div class="gc-face gc-back"><span class="chip c-teal">Vacancy</span><b>Band 6 Sonographer</b><small>4 verified matches today</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="2" data-row="0">
+      <div class="gc-face gc-front"><span class="chip c-sky">Tender</span><b>Renal services</b><small>London · 29 days left</small><span class="gc-stamp">Who saw it?</span></div>
+      <div class="gc-face gc-back"><span class="chip c-sky">Tender</span><b>Renal services</b><small>Matched to 3 suppliers</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="0" data-row="0" data-key="nurse">
+      <div class="gc-face gc-front"><span class="chip c-gray">CV</span><b>Registered Nurse</b><small>Unverified · PDF</small><span class="gc-stamp">Unverified</span></div>
+      <div class="gc-face gc-back"><span class="chip c-teal">Profile</span><b>Registered Nurse</b><small>NMC registration verified</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="0" data-row="1">
+      <div class="gc-face gc-front"><span class="chip c-amber">Compliance</span><b>DBS · Right to work</b><small>2 documents missing</small><span class="gc-stamp">Incomplete</span></div>
+      <div class="gc-face gc-back"><span class="chip c-teal">Compliance</span><b>DBS · Right to work</b><small>All documents checked</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="2" data-row="1">
+      <div class="gc-face gc-front"><span class="chip c-sky">Contact</span><b>Head of Workforce</b><small>ICB · email unknown</small><span class="gc-stamp">Email unknown</span></div>
+      <div class="gc-face gc-back"><span class="chip c-sky">Contact</span><b>Head of Workforce</b><small>Verified decision-maker</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="1" data-row="2">
+      <div class="gc-face gc-front"><span class="chip c-teal">Contract</span><b>Smoking cessation</b><small>Wolverhampton</small><span class="gc-stamp">Lost in an inbox</span></div>
+      <div class="gc-face gc-back"><span class="chip c-teal">Contract</span><b>Smoking cessation</b><small>Live on the marketplace</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="1" data-row="1">
+      <div class="gc-face gc-front"><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>Special school</small><span class="gc-stamp">No applicants</span></div>
+      <div class="gc-face gc-back"><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>6 verified candidates nearby</small><i class="gc-ok"></i></div>
+    </div>
+    <div class="gchip" data-chip data-col="2" data-row="2">
+      <div class="gc-face gc-front"><span class="chip c-gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small><span class="gc-stamp">Out of date</span></div>
+      <div class="gc-face gc-back"><span class="chip c-sky">Growth CRM</span><b>Client list v7 FINAL</b><small>Live, updated today</small><i class="gc-ok"></i></div>
+    </div>
+    <!-- scene 2 board column labels -->
+    <div class="colbl" data-collabel="0"><small>Clinicians</small><b>Verified profiles</b></div>
+    <div class="colbl" data-collabel="1"><small>Providers</small><b>Live marketplace</b></div>
+    <div class="colbl" data-collabel="2"><small>Suppliers</small><b>Growth CRM</b></div>
 
     <!-- scene 4: overnight handover sheet, floating (night) -->
     <div class="sp sp-sheet" id="spNight" data-scene="4">
@@ -193,9 +222,13 @@
     <!-- 2 · FRAGMENTED -->
     <section id="fragmented" class="scene scene-frag" data-stage>
       <div class="frag-copy">
+        <!-- act 1: the problem -->
         <div class="frag-line" data-i="0"><p class="eyebrow center"><span></span>The problem</p><h2 class="h1">Healthcare is <em>fragmented.</em></h2></div>
-        <div class="frag-line" data-i="1"><h2 class="h2">Roles here. Tenders there.<br/><em>Talent lost in between.</em></h2></div>
-        <div class="frag-line" data-i="2"><h2 class="h2">Hours lost to client-mapping,<br/>research and <em>stale data.</em></h2><p class="body center">Qura puts it back together.</p></div>
+        <div class="frag-line" data-i="1"><h2 class="h2 frag-three"><span>Clinicians go <em>unseen.</em></span><span>Providers post roles <em>into the void.</em></span><span>Suppliers chase <em>stale contacts.</em></span></h2></div>
+        <!-- act 2: the fix -->
+        <div class="frag-line top" data-i="2"><p class="eyebrow center"><span></span>The fix</p><h2 class="h2">Qura puts it <em>back together.</em></h2></div>
+        <!-- act 3: how -->
+        <div class="frag-line bottom" data-i="3"><p class="frag-tag">One verified profile. One live marketplace. <b>One CRM that knows who decides.</b></p></div>
       </div>
     </section>
 

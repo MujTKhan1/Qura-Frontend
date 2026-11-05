@@ -90,13 +90,26 @@ main, .footer { position: relative; z-index: 3; }
 .night-rows div { display: flex; align-items: center; gap: 10px; font-size: 13px; padding: 9px 12px; border-radius: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
 .night-rows em { margin-left: auto; font-style: normal; font-size: 11px; color: #6fe3da; }
 .dot.sky { background: var(--sky); }
-.gchip {
-  width: 210px; padding: 12px 14px; border-radius: 16px; display: flex; flex-direction: column; font-family: var(--sans); color: var(--ink);
-  background: rgba(255,255,255,.82); border: 1px solid rgba(255,255,255,.95);
-  box-shadow: 0 0 0 1px var(--line), 0 18px 36px -16px rgba(16,29,56,.3);
-}
-.gchip b { font-size: 14px; font-weight: 600; }
-.gchip small { font-size: 12px; color: var(--muted); }
+/* scene 2 cards: two faces; scene.js shows the back (.flipped) once the card has turned past 90°.
+   CSS3DRenderer mirrors each object's own axes, so backface-visibility can't be trusted here. */
+.gchip { position: relative; width: 210px; transform-style: preserve-3d; font-family: var(--sans); color: var(--ink); }
+.gc-face { display: flex; flex-direction: column; padding: 12px 14px; border-radius: 16px; min-height: 86px;
+  background: rgba(255,255,255,.9); border: 1px solid rgba(255,255,255,.95);
+  box-shadow: 0 0 0 1px var(--line), 0 18px 36px -16px rgba(16,29,56,.3); }
+.gc-back { visibility: hidden; }
+.gchip.flipped .gc-front { visibility: hidden; }
+.gchip.flipped .gc-back { visibility: visible; }
+.gc-back { position: absolute; inset: 0; transform: rotateY(180deg); background: #fff; box-shadow: 0 0 0 1px rgba(0,163,155,.35), 0 18px 36px -16px rgba(0,120,110,.35); }
+.gc-face b { font-size: 14px; font-weight: 600; }
+.gc-face small { font-size: 12px; color: var(--muted); }
+.gc-back small { color: var(--teal-ink); font-weight: 600; }
+.gc-stamp { position: absolute; right: 10px; top: 10px; font-family: var(--serif); font-style: italic; font-size: 13px; color: #c4502f; border: 1.5px solid #c4502f; border-radius: 4px; padding: 1px 7px; transform: rotate(-7deg) scale(var(--st, 0)); opacity: var(--st, 0); background: rgba(255,248,244,.9); white-space: nowrap; }
+.gc-ok { position: absolute; right: 12px; top: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(0,163,155,.15); }
+.gc-ok::after { content: ""; position: absolute; left: 8px; top: 4.5px; width: 5px; height: 10px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.colbl { width: 260px; text-align: center; font-family: var(--sans); }
+.colbl small { display: block; font-size: 12px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.colbl b { display: inline-block; margin-top: 6px; font-family: var(--serif); font-weight: 400; font-size: 26px; color: var(--ink); opacity: var(--mod, 0); transform: translateY(calc((1 - var(--mod, 0)) * 8px)); }
+.colbl b::after { content: ""; display: block; height: 2px; margin-top: 6px; border-radius: 2px; background: linear-gradient(90deg, var(--teal), var(--sky)); transform: scaleX(var(--mod, 0)); }
 .chip { align-self: flex-start; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 99px; margin-bottom: 6px; }
 .c-teal { background: var(--mint); color: var(--teal-ink); }
 .c-sky { background: var(--sky-tint); color: var(--sky); }
@@ -220,10 +233,15 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 
 /* 1 · fragmented */
 .scene-frag { padding: 0; height: 100vh; justify-content: center; }
-.frag-copy { display: grid; text-align: center; padding: 0 var(--gutter); max-width: 1200px; }
+.frag-copy { display: grid; text-align: center; padding: 0 var(--gutter); width: 100%; height: 100%; max-width: 1240px; margin: 0 auto; }
 .scene-frag .h2 { font-size: clamp(2rem, 4.2vw, 4rem); }
 .frag-line { grid-area: 1 / 1; align-self: center; }
-.frag-line[data-i="1"], .frag-line[data-i="2"] { opacity: 0; }
+.frag-line[data-i="1"], .frag-line[data-i="2"], .frag-line[data-i="3"] { opacity: 0; }
+.frag-line.top { align-self: start; padding-top: 12vh; }
+.frag-line.bottom { align-self: end; padding-bottom: 7vh; }
+.scene-frag .frag-three { display: grid; gap: .1em; font-size: clamp(1.8rem, 3.3vw, 3.2rem); }
+.frag-tag { font-size: clamp(1rem, 1.5vw, 1.25rem); color: var(--ink-2); }
+.frag-tag b { color: var(--teal-ink); font-weight: 600; }
 .scene-frag .h1 { font-size: clamp(2.8rem, 7.4vw, 7.4rem); }
 
 /* 2 · verified */
