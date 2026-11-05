@@ -52,7 +52,7 @@ function computeStage() {
 }
 
 // TEMP: scene number badge for review (remove before launch)
-const SCENES = ['Hero', 'Ecosystem', 'Fragmented', 'Verified', 'Night · AI', 'Day · SEND & Care', 'See the market moving', 'Connected', 'Join'];
+const SCENES = ['Hero', 'Ecosystem', 'Fragmented', 'Verified', 'Night · AI', 'Day · SEND & Care', 'See the market moving', 'Connected'];
 const tagN = $('#sceneTag b'), tagT = $('#sceneTag span');
 let tagLast = -1;
 function updateTag(s) {
@@ -340,3 +340,7 @@ if (fine && !reduced) {
 addEventListener('load', () => ScrollTrigger.refresh());
 document.fonts?.ready.then(() => { sizeRot(); ScrollTrigger.refresh(); });
 runLoader();
+
+/* ---------- Offer banner: card rises and settles ---------- */
+gsap.fromTo('.offer-card', { y: 80, rotationX: 14, opacity: 0, transformPerspective: 1400, transformOrigin: '50% 100%' },
+  { y: 0, rotationX: 0, opacity: 1, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.offer', start: 'top 85%', toggleActions: 'play none none reverse' } });

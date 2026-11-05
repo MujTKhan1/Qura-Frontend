@@ -8,7 +8,7 @@
 // Scene 3   No particles. The cards fly into the verified profile card.
 // Scene 4–5 The night (4) and morning (5) glass panels float beside the copy,
 //           and the page background shifts colour per scene.
-// Scene 6+  Plain DOM scenes (film, community cards, join).
+// Scene 6–7 Plain DOM scenes (film, community cards). The offer banner sits between 3 and 4.
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
@@ -36,12 +36,12 @@ const BLOB_X = 3.0, BLOB_R = 1.9, ORBIT_R = 3.15;
 
 // per-scene parameters (index = scene number)
 const S = {
-  camY:  [Y0, Y0, 3.4, 3.1, 3.4, 3.4, 3.5, 3.5, 3.5],
-  camZ:  [13.6, 13.0, 14.6, 13, 13.6, 13.6, 13.5, 13.5, 13.5],
-  lookY: [Y0, Y0, 2.2, 2.8, 3.4, 3.4, 2.7, 2.7, 2.7],
-  panX:  [0, 0, 0, 3.6, -3.9, 3.9, 0, 0, 0],   // where the floating scene panels sit
-  panRY: [0, 0, 0, -0.35, 0.22, -0.22, 0, 0, 0],
-  bg:    ['#f7fafc', '#f7fafc', '#e4e9f1', '#e8f7f4', '#0e1b33', '#fff1e6', '#eef3f9', '#f7fafc', '#f2f8f8'],
+  camY:  [Y0, Y0, 3.4, 3.1, 3.4, 3.4, 3.5, 3.5],
+  camZ:  [13.6, 13.0, 14.6, 13, 13.6, 13.6, 13.5, 13.5],
+  lookY: [Y0, Y0, 2.2, 2.8, 3.4, 3.4, 2.7, 2.7],
+  panX:  [0, 0, 0, 3.6, -3.9, 3.9, 0, 0],   // where the floating scene panels sit
+  panRY: [0, 0, 0, -0.35, 0.22, -0.22, 0, 0],
+  bg:    ['#f7fafc', '#f7fafc', '#e4e9f1', '#e8f7f4', '#0e1b33', '#fff1e6', '#eef3f9', '#f7fafc'],
 };
 const LAST = S.camY.length - 1;
 // particles only live in scenes 0–2

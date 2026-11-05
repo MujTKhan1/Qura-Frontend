@@ -380,14 +380,18 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 .live-cta { margin-top: 12px; justify-content: center; width: 100%; height: 52px; padding: 0 18px; border-radius: 14px; background: #00c2b8; color: #06302d; font-weight: 700; font-size: 15px; box-shadow: 0 12px 30px -10px rgba(0,194,184,.7); }
 .live-cta:hover { background: #12d4ca; }
 
-/* 8 · join */
-.join { min-height: 115vh; }
-.join .container { text-align: center; }
-.offer-pill { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 99px; border: 1px solid rgba(0,163,155,.3); background: var(--mint); font-size: 13px; color: var(--teal-ink); font-weight: 500; margin-bottom: 30px; }
-.cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 40px; }
-.apps { display: flex; gap: 14px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
-.apps a { font-size: 12px; color: var(--muted); border: 1px solid var(--line-2); background: var(--surface); border-radius: 12px; padding: 8px 16px; }
-.apps a b { color: var(--ink); font-weight: 600; }
+/* Founding Partner offer banner (between scenes 3 and 4) */
+.offer { position: relative; padding: 40px 0 120px; }
+.offer-card { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.5fr auto; align-items: center; gap: 40px; padding: 44px 48px; border-radius: 28px;
+  background: linear-gradient(120deg, #ffffff 0%, #effaf8 55%, #e9f1fd 100%);
+  border: 1px solid rgba(0,163,155,.28); box-shadow: 0 30px 70px -35px rgba(16,29,56,.35), 0 0 0 6px rgba(0,163,155,.05); }
+.offer-shine { position: absolute; inset: -40% auto -40% -30%; width: 30%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-18deg); animation: offerShine 6s ease-in-out infinite; pointer-events: none; }
+@keyframes offerShine { 0%, 55% { left: -30%; } 100% { left: 130%; } }
+.offer-pill { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px; border-radius: 99px; border: 1px solid rgba(0,163,155,.3); background: var(--mint); font-size: 12.5px; color: var(--teal-ink); font-weight: 600; }
+.offer-h { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 2.9vw, 2.6rem); line-height: 1.15; margin-top: 16px; max-width: 760px; }
+.offer-h em { font-style: italic; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 .08em .1em 0; }
+.offer-sub { color: var(--muted); font-size: 15px; margin-top: 10px; }
+.offer-actions { position: relative; display: grid; gap: 12px; }
 
 /* Footer */
 .footer { border-top: 1px solid var(--line); background: var(--surface); padding: 64px 0 28px; }
@@ -442,6 +446,8 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
   .connected { padding: 46vh 0 90px; }
   .connected .container { min-height: 0; }
   .ways { grid-template-columns: 1fr; }
+  .offer { padding: 20px 0 60px; }
+  .offer-card { grid-template-columns: 1fr; padding: 30px 24px; gap: 24px; }
   .film { padding: 46vh 0 90px; }
   .film-grid { grid-template-columns: 1fr; height: auto; }
   .film-frame { aspect-ratio: 16 / 10; height: auto; }
