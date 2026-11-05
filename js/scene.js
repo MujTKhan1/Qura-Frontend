@@ -3,12 +3,12 @@
 // Scene 0  Hero: a living "Qura core" orb with 3D-orbiting cards (DOM, projected).
 //   ↓      On scroll the orb dissolves into particles.
 // Scene 1  Ecosystem: the particles form a network sphere.
-// Scene 2  Fragmented: the sphere bursts, glass fragment cards fly out, the podium
-//          rises, then the particles spread off-screen (state.fragExit) leaving only cards.
-// Scene 3–5 No particles. The podium stays; the night (4) and morning (5) panels stand on it,
-//          and the page background shifts colour per scene.
-// Scene 6–7 The podium sinks away for the film and the community cards (plain DOM),
-// Scene 8  then returns for the aerial "join" shot.
+// Scene 2  Fragmented: the sphere bursts, glass fragment cards fly out,
+//          then the particles spread off-screen (state.fragExit) leaving only cards.
+// Scene 3   No particles. The cards fly into the verified profile card.
+// Scene 4–5 The night (4) and morning (5) glass panels float beside the copy,
+//           and the page background shifts colour per scene.
+// Scene 6+  Plain DOM scenes (film, community cards, join).
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
@@ -36,13 +36,11 @@ const BLOB_X = 3.0, BLOB_R = 1.9, ORBIT_R = 3.15;
 
 // per-scene parameters (index = scene number)
 const S = {
-  camY:  [Y0, Y0, 3.4, 3.1, 3.4, 3.4, 3.5, 3.5, 14.5],
-  camZ:  [13.6, 13.0, 14.6, 13, 13.6, 13.6, 13.5, 13.5, 2.6],
-  lookY: [Y0, Y0, 2.2, 2.8, 3.4, 3.4, 2.7, 2.7, 0.6],
-  podX:  [0, 0, 0, 3.6, -3.4, 3.4, 0, 0, 0],
-  podRY: [0, 0, 0, -0.35, 0.3, -0.3, 0, 0, 0],
-  podY:  [0, 0, -1.9, 0, 0, 0, 0, 0, 0],      // scene 2: sits low, clear of the headline
-  glow:  [0, 0, 0.6, 0.9, 1.8, 1, 1.1, 1.1, 1.4],
+  camY:  [Y0, Y0, 3.4, 3.1, 3.4, 3.4, 3.5, 3.5, 3.5],
+  camZ:  [13.6, 13.0, 14.6, 13, 13.6, 13.6, 13.5, 13.5, 13.5],
+  lookY: [Y0, Y0, 2.2, 2.8, 3.4, 3.4, 2.7, 2.7, 2.7],
+  panX:  [0, 0, 0, 3.6, -3.4, 3.4, 0, 0, 0],   // where the floating scene panels sit
+  panRY: [0, 0, 0, -0.35, 0.3, -0.3, 0, 0, 0],
   bg:    ['#f7fafc', '#f7fafc', '#e4e9f1', '#e8f7f4', '#0e1b33', '#fff1e6', '#eef3f9', '#f7fafc', '#f2f8f8'],
 };
 const LAST = S.camY.length - 1;
@@ -74,19 +72,6 @@ float snoise(vec3 v){
   return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
 }`;
 
-function capsule(w, d) {
-  const r = d / 2, s = new THREE.Shape();
-  s.absarc(w / 2 - r, 0, r, -Math.PI / 2, Math.PI / 2, false);
-  s.absarc(-w / 2 + r, 0, r, Math.PI / 2, Math.PI * 1.5, false);
-  s.closePath();
-  return s;
-}
-function podiumTier(w, d, h, mat) {
-  const bev = 0.12;
-  const g = new THREE.ExtrudeGeometry(capsule(w, d), { depth: h - bev * 2, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 6, curveSegments: 64 });
-  g.rotateX(-Math.PI / 2); g.translate(0, bev, 0);
-  return new THREE.Mesh(g, mat);
-}
 
 export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels = [], pings = [], mobile = false, reduced = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -299,28 +284,10 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     arcs.push({ curve, coreM, glowM, tube, glowT, spark, idx: geoC.index.count, k });
   });
 
-  // ================= PODIUM (scene 2 onward) =================
-  const stage = new THREE.Group(); scene.add(stage);
-  const cssStage = new THREE.Group(); cssScene.add(cssStage);
-  const cssWorld = new THREE.Group(); cssScene.add(cssWorld);
-
-  const podMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.12 });
-  const tier1 = podiumTier(7.6, 3.6, 0.6, podMat);
-  const tier2 = podiumTier(4.4, 2.2, 0.42, podMat); tier2.position.set(0, 0.6, 0.15);
-  stage.add(tier1, tier2);
-  const ringCurve = new THREE.CatmullRomCurve3(capsule(7.0, 3.0).getPoints(160).map((p) => new THREE.Vector3(p.x, 0.605, -p.y)), true);
-  const core = new THREE.MeshBasicMaterial({ color: 0x00c2b8, toneMapped: false, transparent: true });
-  const halo = new THREE.MeshBasicMaterial({ color: 0x00c2b8, toneMapped: false, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending, depthWrite: false });
-  stage.add(new THREE.Mesh(new THREE.TubeGeometry(ringCurve, 400, 0.018, 8, true), core));
-  stage.add(new THREE.Mesh(new THREE.TubeGeometry(ringCurve, 400, 0.07, 8, true), halo));
-  const ring2 = new THREE.CatmullRomCurve3(capsule(4.0, 1.8).getPoints(120).map((p) => new THREE.Vector3(p.x, 1.025, 0.15 - p.y)), true);
-  stage.add(new THREE.Mesh(new THREE.TubeGeometry(ring2, 300, 0.012, 8, true), core));
-  const podShadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false, toneMapped: false });
-  const podShadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), podShadowMat);
-  podShadow.rotation.x = -Math.PI / 2; podShadow.scale.set(10.5, 5.5, 1); podShadow.position.y = -0.02;
-  stage.add(podShadow);
 
   // ================= CSS3D: fragments + scene panels =================
+  const cssStage = new THREE.Group(); cssScene.add(cssStage);   // frame of the floating scene panels
+  const cssWorld = new THREE.Group(); cssScene.add(cssWorld);
   const toCss = (el, parent, s = 0.01) => { const o = new CSS3DObject(el); o.scale.setScalar(s); parent.add(o); return o; };
   const chipObjs = chips.map((el, k) => {
     const o = toCss(el, cssWorld, 0.009);
@@ -334,7 +301,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     };
     return o;
   });
-  const PANEL_S = 0.0128;                              // podium cards: big and readable
+  const PANEL_S = 0.0128;                              // scene panels: big and readable
   const panelObjs = panels.map((el) => {
     const h = el.offsetHeight || 420;
     const o = toCss(el, cssStage, PANEL_S);
@@ -355,7 +322,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   layout(); addEventListener('resize', layout);
 
   const bgCols = S.bg.map((h) => new THREE.Color(h));
-  const bgNow = new THREE.Color(), podDark = new THREE.Color(0x56678a), white = new THREE.Color(0xffffff);
+  const bgNow = new THREE.Color();
   const clock = new THREE.Clock();
   const cv = new THREE.Vector3(), tv = new THREE.Vector3();
   const gatherTo = new THREE.Vector3();
@@ -370,14 +337,12 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     let i = Math.floor(s); if (i >= LAST) i = LAST - 1;
     const f = s - i, e = f * f * (3 - 2 * f);
     const L = (arr) => arr[i] + (arr[i + 1] - arr[i]) * e;
-    const podOut = smooth(5.3, 5.95, s) * (1 - smooth(7.2, 7.9, s));   // sinks for the film + community cards
-    const podK = smooth(1.25, 2.0, s) * (1 - podOut);
+    const panIn = smooth(1.25, 2.0, s);                    // panel frame settles during scene 2
 
     // background colour journey
     bgNow.copy(bgCols[i]).lerp(bgCols[i + 1], e);
     const hex = '#' + bgNow.getHexString();
     if (hex !== lastBg) { document.body.style.backgroundColor = hex; lastBg = hex; }
-    const night = bump(s, 4, 1.6);
 
     // ---------- hero orb ----------
     const dissolve = smooth(0.2, 0.75, h);
@@ -505,15 +470,6 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       pingsShown = showPings;
     }
 
-    // ---------- podium ----------
-    stage.visible = podK > 0.005;
-    stage.position.set(L(S.podX) * layoutK, (mob ? 3.0 : L(S.podY)) - 5 * (1 - podK), 0);
-    stage.rotation.y = L(S.podRY) + mouse.x * 0.1;
-    stage.scale.setScalar(mob ? 0.55 : 1);
-    podMat.color.copy(white).lerp(podDark, night * 0.85);
-    podShadowMat.opacity = podK * (1 - night * 0.7);
-    const glow = L(S.glow) * (0.85 + 0.15 * Math.sin(t * 2));
-    core.opacity = clamp(glow, 0, 1); halo.opacity = 0.18 * glow;
 
     // fragment cards: burst out of the sphere, hover around the copy, then fly into the verified card
     const spread = smooth(1.05, 1.9, s), gather = smooth(2.15, 2.85, s);
@@ -534,24 +490,26 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       o.element.style.opacity = cOp.toFixed(3); o.visible = cOp > 0.005;
     });
 
-    // scene panels standing on the podium
+    // scene panels floating beside the copy
     panelObjs.forEach((o) => {
       const v = bump(s, o.userData.k, 1.9);
       o.visible = v > 0.005;
       if (!o.visible) return;
-      o.position.set(0, 1.05 + 0.12 + o.userData.h / 2 - 1.8 * (1 - v), 0.15);
+      o.position.set(0, 1.3 + o.userData.h / 2 - 1.8 * (1 - v) + Math.sin(t * 0.9 + o.userData.k) * 0.08, 0.15);   // floats gently
       o.rotation.set(0, 0, 0);
       o.element.style.opacity = v.toFixed(3);
     });
 
     // ---------- camera ----------
-    const zK = mob ? 1.18 + 0.17 * podK : 1;
+    const zK = mob ? 1.18 + 0.17 * panIn : 1;
     camera.position.x += (mouse.x * 0.7 - camera.position.x) * Math.min(1, dt * 2);
     camera.position.y += (L(S.camY) - mouse.y * 0.4 - camera.position.y) * Math.min(1, dt * 3);
     camera.position.z += (L(S.camZ) * zK - camera.position.z) * Math.min(1, dt * 3);
-    camera.lookAt(0, L(S.lookY) + (mob ? -1.5 * podK : 0), 0);
+    camera.lookAt(0, L(S.lookY) + (mob ? -1.5 * panIn : 0), 0);
 
-    cssStage.position.copy(stage.position); cssStage.rotation.copy(stage.rotation); cssStage.scale.copy(stage.scale);
+    cssStage.position.set(L(S.panX) * layoutK, (mob ? 3.0 : 0) - 5 * (1 - panIn), 0);
+    cssStage.rotation.set(0, L(S.panRY) + mouse.x * 0.1, 0);
+    cssStage.scale.setScalar(mob ? 0.55 : 1);
     renderer.render(scene, camera);
     css.render(cssScene, camera);
   }
