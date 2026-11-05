@@ -380,18 +380,30 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 .live-cta { margin-top: 12px; justify-content: center; width: 100%; height: 52px; padding: 0 18px; border-radius: 14px; background: #00c2b8; color: #06302d; font-weight: 700; font-size: 15px; box-shadow: 0 12px 30px -10px rgba(0,194,184,.7); }
 .live-cta:hover { background: #12d4ca; }
 
-/* Founding Partner offer banner (between scenes 3 and 4) */
-.offer { position: relative; padding: 40px 0 120px; }
-.offer-card { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.5fr auto; align-items: center; gap: 40px; padding: 44px 48px; border-radius: 28px;
-  background: linear-gradient(120deg, #ffffff 0%, #effaf8 55%, #e9f1fd 100%);
-  border: 1px solid rgba(0,163,155,.28); box-shadow: 0 30px 70px -35px rgba(16,29,56,.35), 0 0 0 6px rgba(0,163,155,.05); }
-.offer-shine { position: absolute; inset: -40% auto -40% -30%; width: 30%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.85), transparent); transform: skewX(-18deg); animation: offerShine 6s ease-in-out infinite; pointer-events: none; }
-@keyframes offerShine { 0%, 55% { left: -30%; } 100% { left: 130%; } }
-.offer-pill { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px; border-radius: 99px; border: 1px solid rgba(0,163,155,.3); background: var(--mint); font-size: 12.5px; color: var(--teal-ink); font-weight: 600; }
-.offer-h { font-family: var(--serif); font-weight: 400; font-size: clamp(1.7rem, 2.9vw, 2.6rem); line-height: 1.15; margin-top: 16px; max-width: 760px; }
-.offer-h em { font-style: italic; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 .08em .1em 0; }
-.offer-sub { color: var(--muted); font-size: 15px; margin-top: 10px; }
-.offer-actions { position: relative; display: grid; gap: 12px; }
+/* Founding Partner offer strip (right after the hero) */
+.offer { position: relative; padding: 70px 0 30px; }
+.offer-strip { position: relative; overflow: hidden; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 44px; padding: 30px 44px; border-radius: 22px;
+  background: rgba(255,255,255,.86); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line); box-shadow: 0 30px 60px -36px rgba(16,29,56,.35); }
+.offer-strip::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--teal), var(--sky)); }
+.os-big { display: grid; justify-items: center; padding-right: 44px; border-right: 1px solid var(--line); }
+.ob-num { font-family: var(--serif); font-weight: 400; font-size: clamp(5rem, 8vw, 7.5rem); line-height: .85; letter-spacing: -.03em; color: var(--ink); min-width: 1.1em; text-align: center; font-variant-numeric: lining-nums proportional-nums; }
+.os-big small { margin-top: 8px; font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink); font-weight: 500; }
+.os-eyebrow { display: flex; align-items: center; gap: 14px; font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--teal-ink); font-weight: 600; }
+.os-eyebrow::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,163,155,.45), transparent); }
+.os-h { font-family: var(--serif); font-weight: 400; font-size: clamp(2rem, 3.4vw, 3.1rem); line-height: 1.1; margin-top: 10px; color: var(--ink); }
+.os-h em, .os-line em { font-style: italic; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 .08em .12em 0; }
+.os-line { margin-top: 8px; font-size: 16px; color: var(--ink-2); }
+.os-line em { font-family: var(--serif); font-size: 1.35em; }
+.os-note { margin-top: 4px; font-size: 13px; color: var(--muted); }
+.os-cta { display: grid; justify-items: center; gap: 12px; }
+.os-link { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(16,29,56,.35); }
+.os-link:hover { color: var(--teal-ink); text-decoration-color: var(--teal); }
+.os-clock { display: grid; justify-items: center; gap: 6px; margin-top: 4px; }
+.os-bar { width: 150px; height: 3px; border-radius: 3px; background: var(--panel); overflow: hidden; }
+.os-bar i { display: block; height: 100%; width: var(--left, 50%); background: linear-gradient(90deg, var(--teal), var(--sky)); transform-origin: left; }
+.os-clock small { font-size: 12px; color: var(--muted); }
+.os-clock b { color: var(--teal-ink); font-variant-numeric: tabular-nums; }
 
 /* Footer */
 .footer { border-top: 1px solid var(--line); background: var(--surface); padding: 64px 0 28px; }
@@ -446,8 +458,11 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
   .connected { padding: 46vh 0 90px; }
   .connected .container { min-height: 0; }
   .ways { grid-template-columns: 1fr; }
-  .offer { padding: 20px 0 60px; }
-  .offer-card { grid-template-columns: 1fr; padding: 30px 24px; gap: 24px; }
+  .offer { padding: 40px 0 10px; }
+  .offer-strip { grid-template-columns: 1fr; gap: 20px; padding: 28px 24px; text-align: center; }
+  .os-big { padding: 0 0 18px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .os-eyebrow { justify-content: center; }
+  .os-eyebrow::after { display: none; }
   .film { padding: 46vh 0 90px; }
   .film-grid { grid-template-columns: 1fr; height: auto; }
   .film-frame { aspect-ratio: 16 / 10; height: auto; }

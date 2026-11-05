@@ -341,6 +341,18 @@ addEventListener('load', () => ScrollTrigger.refresh());
 document.fonts?.ready.then(() => { sizeRot(); ScrollTrigger.refresh(); });
 runLoader();
 
-/* ---------- Offer banner: card rises and settles ---------- */
-gsap.fromTo('.offer-card', { y: 80, rotationX: 14, opacity: 0, transformPerspective: 1400, transformOrigin: '50% 100%' },
-  { y: 0, rotationX: 0, opacity: 1, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: '.offer', start: 'top 85%', toggleActions: 'play none none reverse' } });
+/* ---------- Offer strip: rises in, the 12 counts up, days-left countdown ---------- */
+gsap.fromTo('.offer-strip', { y: 60, opacity: 0 },
+  { y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: '.offer', start: 'top 88%', toggleActions: 'play none none reverse' } });
+gsap.fromTo('.os-copy > *', { y: 20, opacity: 0 },
+  { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, delay: 0.15, ease: 'power3.out', scrollTrigger: { trigger: '.offer', start: 'top 88%', toggleActions: 'play none none reverse' } });
+const obNum = $('.ob-num'), obCount = { v: 1 };
+ScrollTrigger.create({
+  trigger: '.offer', start: 'top 80%',
+  onEnter: () => gsap.fromTo(obCount, { v: 1 }, { v: 12, duration: 1.4, ease: 'power3.out', onUpdate: () => (obNum.textContent = Math.round(obCount.v)) }),
+});
+// days left, and a bar showing how much of the offer window remains (window opened 22 September 2026, the launch)
+const OFFER_END = new Date(2026, 11, 31), OFFER_START = new Date(2026, 8, 22);
+const daysLeft = Math.max(0, Math.ceil((OFFER_END - new Date()) / 864e5));
+$('.oc-days').textContent = daysLeft;
+$('.os-bar').style.setProperty('--left', (clamp((OFFER_END - new Date()) / (OFFER_END - OFFER_START), 0, 1) * 100).toFixed(1) + '%');
