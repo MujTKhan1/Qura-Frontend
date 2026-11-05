@@ -1,6 +1,6 @@
 # Qura Landing Page — Scroll Story (as built)
 
-A temporary badge in the bottom-left corner of the page shows the scene number while we review. It is marked `TEMP` in `index.html`, `css/styles.css` and `js/main.js`, so it is easy to remove before launch.
+The scene numbers below are how we refer to each part of the page (the on-page number badge used during review has been removed).
 
 | # | Scene | Background | What happens in 3D |
 |---|-------|-----------|--------------------|
@@ -24,10 +24,9 @@ A temporary badge in the bottom-left corner of the page shows the scene number w
 - Real Qura logo (the orb in the nav is a stand-in).
 - A front-facing clinician photo, if one becomes available (currently `assets/clinician-sonographer.webp`, taken from the current site).
 - Build `story.html`.
-- Remove the TEMP scene badge before launch.
 
 ## Files
 - `index.html`: structure and copy
 - `css/styles.css`: clinical white design system
 - `js/scene.js`: 3D (orb hero, particles for scenes 0–2, floating glass panels, background colours)
-- `js/main.js`: scroll timelines, intro, scene badge
+- `js/main.js`: scroll timelines, intro

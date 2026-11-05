@@ -493,10 +493,6 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 .gp-new { font-style: normal; font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--teal-ink); background: var(--mint); padding: 3px 7px; border-radius: 99px; }
 @media (max-width: 900px) { .globe-pings { display: none; } }
 
-/* TEMP: scene number badge for review (remove before launch) */
-#sceneTag { position: fixed; left: 16px; bottom: 16px; z-index: 95; display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 99px; background: #101d38; color: #fff; font: 600 13px/1 var(--sans); box-shadow: 0 8px 24px -8px rgba(0,0,0,.45); pointer-events: none; }
-#sceneTag b { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #ff4d6d; font-size: 15px; }
-
 /* ============ Scene 4: overnight handover sheet (paper, not glass) ============ */
 .sp-sheet { position: relative; padding: 34px 34px 26px; border-radius: 6px; background: #fbf8f1; color: #1c2740;
   background-image: repeating-linear-gradient(180deg, transparent 0 33px, rgba(28,39,64,.06) 33px 34px);

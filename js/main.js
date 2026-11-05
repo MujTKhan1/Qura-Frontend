@@ -51,18 +51,8 @@ function computeStage() {
   return s;
 }
 
-// TEMP: scene number badge for review (remove before launch)
-const SCENES = ['Hero', 'Ecosystem', 'Fragmented', 'Verified', 'Night · AI', 'Day · SEND & Care', 'See the market moving', 'Connected'];
-const tagN = $('#sceneTag b'), tagT = $('#sceneTag span');
-let tagLast = -1;
-function updateTag(s) {
-  const n = Math.min(SCENES.length - 1, Math.round(s));
-  if (n !== tagLast) { tagLast = n; tagN.textContent = n; tagT.textContent = SCENES[n]; }
-}
-
 gsap.ticker.add(() => {
   const s = computeStage();
-  updateTag(s);
   if (!scene) return; scene.state.target = s; scene.tick();
 });
 
