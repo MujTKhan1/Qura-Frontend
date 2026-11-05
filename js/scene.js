@@ -1,7 +1,8 @@
 // Qura landing — one persistent 3D scene.
 //
-// Scene 0  Hero: a living "Qura core" orb with 3D-orbiting cards (DOM, projected).
-//   ↓      On scroll the orb dissolves into particles.
+// Scene 0  Hero: three woven glass rings (clinicians, providers, suppliers), or the beating
+//          heart variant (HERO_SHAPE), with 3D-orbiting cards (DOM, projected).
+//   ↓      On scroll the shape dissolves into particles.
 // Scene 1  Ecosystem: the particles form a network sphere.
 // Scene 2  Fragmented: the sphere bursts, glass fragment cards fly out,
 //          then the particles spread off-screen (state.fragExit) leaving only cards.
@@ -12,6 +13,8 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const R = Math.random;
 const gauss = () => { let u = 0, v = 0; while (!u) u = R(); while (!v) v = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
@@ -33,6 +36,7 @@ const C = {
 
 const Y0 = 2.6;                       // height of the "action" above the floor
 const BLOB_X = 3.0, BLOB_R = 1.9, ORBIT_R = 3.15;
+const HERO_SHAPE = 'rings';           // 'rings' (three linked communities) or 'heart' (beating heart + ECG)
 
 // per-scene parameters (index = scene number)
 const S = {
@@ -73,6 +77,51 @@ float snoise(vec3 v){
 }`;
 
 
+// Three woven rings, atom-style: three long ellipses turned 0°, 60° and 120° in one plane, each rising
+// and dipping (z = h·sin 4u) so they weave over and under one another without touching.
+function ringGeometries(a, b, tube, h = 0.28) {
+  return [0, 1, 2].map((k) => {
+    const th = k * Math.PI / 3, c = Math.cos(th), s = Math.sin(th), pts = [];
+    for (let i = 0; i < 200; i++) {
+      const u = (i / 200) * Math.PI * 2, x = a * Math.cos(u), y = b * Math.sin(u);
+      pts.push(new THREE.Vector3(x * c - y * s, x * s + y * c, h * Math.sin(4 * u)));
+    }
+    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 400, tube, 40, true);
+  });
+}
+
+// A puffy heart: an extruded heart outline with a deep, many-step bevel so it reads as blown glass.
+function heartGeometry(height) {
+  const sh = new THREE.Shape();
+  sh.moveTo(5, 5);
+  sh.bezierCurveTo(5, 5, 4, 0, 0, 0);
+  sh.bezierCurveTo(-6, 0, -6, 7, -6, 7);
+  sh.bezierCurveTo(-6, 11, -3, 15.4, 5, 19);
+  sh.bezierCurveTo(12, 15.4, 16, 11, 16, 7);
+  sh.bezierCurveTo(16, 7, 16, 0, 10, 0);
+  sh.bezierCurveTo(7, 0, 5, 5, 5, 5);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: 1.5, bevelEnabled: true, bevelThickness: 4.2, bevelSize: 3.2, bevelSegments: 20, curveSegments: 64 });
+  g.rotateZ(Math.PI);                 // the outline is drawn point-down in screen space
+  g.center();
+  g.computeBoundingBox();
+  const k = height / (g.boundingBox.max.y - g.boundingBox.min.y);
+  g.scale(k, k, k * 0.9);
+  g.computeVertexNormals();
+  return g;
+}
+
+// ECG trace (flat → P → QRS spike → T → flat), as a straight-segment path in the x/y plane.
+const ECG_R = 0.5;                    // where the big R spike sits along the trace (0..1)
+function ecgPath(w, amp, z) {
+  const pts = [[-0.5, 0], [-0.17, 0], [-0.13, 0.12], [-0.09, 0], [-0.03, 0], [-0.01, -0.18], [0, 1], [0.015, -0.42], [0.035, 0], [0.1, 0], [0.15, 0.22], [0.2, 0], [0.5, 0]];
+  const path = new THREE.CurvePath();
+  for (let k = 0; k < pts.length - 1; k++) {
+    const a = pts[k], b = pts[k + 1];
+    path.add(new THREE.LineCurve3(new THREE.Vector3(a[0] * w, a[1] * amp, z), new THREE.Vector3(b[0] * w, b[1] * amp, z)));
+  }
+  return path;
+}
+
 export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels = [], pings = [], mobile = false, reduced = false }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   const PR = Math.min(window.devicePixelRatio || 1, 1.75);
@@ -97,35 +146,39 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   // ================= HERO: the Qura core =================
   const hero = new THREE.Group(); scene.add(hero);
   const blobU = { uTime: { value: 0 }, uDissolve: { value: 0 }, uAlpha: { value: 0 }, uAmp: { value: 1 }, uMouse: { value: new THREE.Vector2() } };
-  const blob = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(BLOB_R, mobile ? 28 : 48),
-    new THREE.ShaderMaterial({
-      uniforms: blobU, transparent: true, toneMapped: false,
+  const heroMat = (tint, tintK, liquidK = 0, phase = 0) => new THREE.ShaderMaterial({
+      uniforms: { ...blobU, uTint: { value: new THREE.Color(tint) }, uTintK: { value: tintK }, uLiquid: { value: liquidK }, uPhase: { value: phase } }, transparent: true, toneMapped: false,
       vertexShader: NOISE + /* glsl */`
-        uniform float uTime, uAmp; uniform vec2 uMouse;
+        uniform float uTime, uAmp, uLiquid, uPhase; uniform vec2 uMouse;
         varying vec3 vNormal, vView, vObj; varying float vN;
-        float field(vec3 n){
-          return (snoise(n*1.1 + vec3(uTime*.18, uTime*.12, 0.)) * .17
-               + snoise(n*2.6 - vec3(0., uTime*.3, uTime*.2)) * .05
-               + dot(n.xy, uMouse) * .12) * uAmp;
+        // liquid surface: slow noise ripples plus swells that travel round each ring
+        float liquid(vec3 p, float along){
+          float f = snoise(p * 1.25 + vec3(0., uTime * .35, uTime * .22)) * .55
+                  + snoise(p * 2.9 - vec3(uTime * .45, 0., uTime * .3)) * .25;
+          float swell = pow(.5 + .5 * sin(6.2831 * (along * 2. - uTime * .22 + uPhase)), 3.);
+          return f * .025 + swell * .035;
         }
-        vec3 disp(vec3 p){ vec3 n = normalize(p); return p + n * field(n) * ${BLOB_R.toFixed(2)}; }
         void main(){
-          vec3 p0 = disp(position);
-          vec3 n = normalize(position);
-          vec3 t = normalize(abs(n.y) > .99 ? cross(n, vec3(1.,0.,0.)) : cross(n, vec3(0.,1.,0.)));
-          vec3 b = cross(n, t);
-          vec3 p1 = disp(position + t*.02), p2 = disp(position + b*.02);
-          vec3 nn = normalize(cross(p1 - p0, p2 - p0));
-          if (dot(nn, n) < 0.) nn = -nn;
-          vN = field(n); vObj = position;
-          vNormal = normalize(normalMatrix * nn);
-          vec4 mv = modelViewMatrix * vec4(p0, 1.);
+          vec3 n = normalize(position + vec3(.0001));
+          vN = (snoise(n*1.1 + vec3(uTime*.18, uTime*.12, 0.)) * .17
+              + snoise(n*2.6 - vec3(0., uTime*.3, uTime*.2)) * .05
+              + dot(normal.xy, uMouse) * .12) * uAmp;      // drifting colour
+          vec3 p = position, nrm = normal;
+          if (uLiquid > 0.) {
+            float h = liquid(position, uv.x);
+            float e = .03;                                   // bend the normal with the surface so light flows over the ripples
+            vec3 g = vec3(liquid(position + vec3(e,0.,0.), uv.x) - h, liquid(position + vec3(0.,e,0.), uv.x) - h, liquid(position + vec3(0.,0.,e), uv.x) - h) / e;
+            p += normal * h * uLiquid;
+            nrm = normalize(normal - (g - dot(g, normal) * normal) * uLiquid * .9);
+          }
+          vObj = position;
+          vNormal = normalize(normalMatrix * nrm);
+          vec4 mv = modelViewMatrix * vec4(p, 1.);
           vView = -mv.xyz;
           gl_Position = projectionMatrix * mv;
         }`,
       fragmentShader: NOISE + /* glsl */`
-        uniform float uDissolve, uAlpha, uTime;
+        uniform float uDissolve, uAlpha, uTime, uTintK; uniform vec3 uTint;
         varying vec3 vNormal, vView, vObj; varying float vN;
         void main(){
           vec3 N = normalize(vNormal), V = normalize(vView);
@@ -134,11 +187,12 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
           float diff = dot(N, L) * .5 + .5;
           vec3 pearl = mix(vec3(.72, .86, .91), vec3(.96, .99, 1.), diff);
           vec3 grad = mix(vec3(0., .70, .66), vec3(.38, .60, .98), smoothstep(-1., 1., N.y + N.x * .6));
+          grad = mix(grad, uTint, uTintK);
           vec3 col = mix(pearl, grad, clamp(.42 + vN * 2.2, 0., .9));
           vec3 irid = .5 + .5 * cos(6.2831 * (fres * 1.1 + vN * 2.5 + vec3(0., .33, .67)));
           col = mix(col, col * (.75 + .5 * irid), fres * .5);
           col += vec3(0., .55, .52) * fres * .35;
-          col += pow(max(dot(reflect(-L, N), V), 0.), 48.) * .5;
+          col += pow(max(dot(reflect(-L, N), V), 0.), 48.) * .5;    // crisp glass highlight
           col += pow(max(dot(reflect(-normalize(vec3(.7,-.3,.6)), N), V), 0.), 12.) * .12 * vec3(.6,.8,1.);
           if (uDissolve > 0.001) {
             float d = snoise(vObj * 1.6) * .5 + .5;
@@ -148,8 +202,18 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
           }
           gl_FragColor = vec4(col, uAlpha);
         }`,
-    })
-  );
+    });
+  const blob = new THREE.Group();
+  let heroGeo;
+  if (HERO_SHAPE === 'heart') {
+    heroGeo = heartGeometry(BLOB_R * 2.05);
+    blob.add(new THREE.Mesh(heroGeo, heroMat('#00a39b', 0)));
+  } else {
+    const rings = ringGeometries(BLOB_R * 1.13, BLOB_R * 0.43, 0.125);
+    const tints = ['#00a39b', '#3d7fe0', '#1b8fb0'];          // clinicians · providers · suppliers
+    rings.forEach((g, k) => blob.add(new THREE.Mesh(g, heroMat(tints[k], 0.42, 0, k / 3))));   // rigid glass (set the 3rd arg to 1 for the liquid look)
+    heroGeo = mergeGeometries(rings);
+  }
   hero.add(blob);
 
   const shadowTex = (() => {
@@ -185,6 +249,30 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     orbit.add(s); sats.push(s);
   }
 
+  // ECG line: a travelling bright head with a fading trail; the heart beats as the head crosses the spike
+  const ecgU = { uHead: { value: 0 }, uAlpha: { value: 0 } };
+  const ecgMat = (glow) => new THREE.ShaderMaterial({
+    uniforms: ecgU, transparent: true, depthWrite: false, toneMapped: false,
+    vertexShader: /* glsl */`varying float vT; void main(){ vT = uv.x; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+    fragmentShader: /* glsl */`
+      uniform float uHead, uAlpha; varying float vT;
+      void main(){
+        float d = uHead - vT; if (d < 0.) d += 1.;               // distance behind the head
+        float trail = exp(-d * 5.);
+        float edge = smoothstep(0., .06, vT) * smoothstep(1., .94, vT);
+        vec3 col = mix(vec3(.24,.5,.88), vec3(0.,.64,.61), trail);
+        float a = (${glow ? '.28' : '1.'} * trail + ${glow ? '0.' : '.1'}) * edge * uAlpha;
+        gl_FragColor = vec4(col, a);
+      }`,
+  });
+  const ecgCurve = ecgPath(BLOB_R * 3.9, BLOB_R * 0.62, BLOB_R * 0.95);
+  const ecg = new THREE.Group();
+  ecg.add(new THREE.Mesh(new THREE.TubeGeometry(ecgCurve, 600, 0.028, 8, false), ecgMat(false)));
+  ecg.add(new THREE.Mesh(new THREE.TubeGeometry(ecgCurve, 600, 0.085, 8, false), ecgMat(true)));
+  ecg.position.y = -0.05;
+  if (HERO_SHAPE === 'heart') hero.add(ecg);
+  const heroRot = new THREE.Euler();
+
   // ================= PARTICLES (scenes 0–2 only) =================
   const N = mobile ? 4500 : 9000;
   const build = (fn) => {
@@ -193,7 +281,9 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     return { pos, col };
   };
   const F = [];
-  F.push(build(() => [onSphere(BLOB_R * (1 + gauss() * 0.03)), mix(C.teal, C.sky, R() * 0.6)]));              // orb surface
+  const heartSampler = new MeshSurfaceSampler(new THREE.Mesh(heroGeo.index ? heroGeo.toNonIndexed() : heroGeo)).build();
+  const hp = new THREE.Vector3();
+  F.push(build(() => { heartSampler.sample(hp); return [[hp.x, hp.y, hp.z], mix(C.teal, C.sky, R() * 0.6)]; }));  // hero shape's surface
   const RG = 2.7;                                                                                               // dotted globe
   F.push(build(() => {
     const k = R(); let lat, lon;
@@ -357,10 +447,21 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     blobU.uAmp.value = 1 + 0.8 * smooth(0, 0.4, h);
     blobU.uMouse.value.x += (mouse.x * 1.2 - blobU.uMouse.value.x) * Math.min(1, dt * 2);
     blobU.uMouse.value.y += (-mouse.y * 1.2 - blobU.uMouse.value.y) * Math.min(1, dt * 2);
-    blob.rotation.y = t * 0.08; blob.rotation.x = Math.sin(t * 0.2) * 0.15;
+    const head = (t * (reduced ? 0.18 : 0.42)) % 1;                       // ECG head position along the trace
+    const ph = (head - ECG_R + 1) % 1;                                    // time since the head crossed the spike
+    const beat = Math.exp(-ph * 38) + 0.55 * Math.exp(-Math.max(0, ph - 0.07) * 38) * (ph > 0.07 ? 1 : 0);   // lub-dub
+    if (HERO_SHAPE === 'heart') {
+      blob.rotation.set(Math.sin(t * 0.27) * 0.06 - mouse.y * 0.15, Math.sin(t * 0.35) * 0.32 + mouse.x * 0.3, 0);
+      blob.scale.setScalar(1 + 0.055 * beat * (1 - dissolve));
+    } else {
+      const sp = reduced ? 0.25 : 1;                                       // rings tumble slowly, as one
+      blob.rotation.set(Math.sin(t * 0.3 * sp) * 0.16 - mouse.y * 0.2, Math.sin(t * 0.24 * sp) * 0.22 + mouse.x * 0.3, t * 0.1 * sp);   // faces you, sways, turns in its own plane
+    }
+    heroRot.copy(blob.rotation);
     const ringA = smooth(0, 1, intro) * (1 - smooth(0, 0.35, h));
     blobShadowMat.opacity = smooth(0, 1, intro) * (1 - dissolve);
     ringMats.forEach((m, k) => (m.opacity = (k === 0 ? 0.55 : 0.4) * ringA));
+    ecgU.uHead.value = head; ecgU.uAlpha.value = ringA; ecg.visible = HERO_SHAPE === 'heart' && ringA > 0.01;
     orbit.rotation.set(orbitTilt.x + mouse.y * 0.15, mouse.x * 0.25, orbitTilt.z);
     orbit.scale.setScalar(1 + 0.6 * smooth(0, 0.4, h));
     sats.forEach((o) => {
@@ -416,7 +517,8 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       spin += dt * 0.12 * sp * (reduced ? 0.3 : 1);
       const home = Math.round(spin / (Math.PI * 2)) * Math.PI * 2;
       spin += (home - spin) * (1 - sp) * Math.min(1, dt * 1.6);
-      pg.rotation.set(0.32 * (pi === 0 ? pe : 1), spin - 1.8, 0);   // UK/Europe face the viewer, tilted north
+      if (pi === 0) pg.rotation.set(heroRot.x + (0.32 - heroRot.x) * pe, heroRot.y + (spin - 1.8 - heroRot.y) * pe, heroRot.z * (1 - pe));   // hero shape's turn →
+      else pg.rotation.set(0.32, spin - 1.8, 0);                                                                                        // UK/Europe facing, tilted north
       const onOrb = pi === 0 ? 1 - pe : 0;
       pg.position.set(PL(PX) * layoutK + (heroX - PX[0] * layoutK) * onOrb, Y0 + heroY * onOrb, 0);
       pg.scale.setScalar(mobileK * (1 + (blobScale / mobileK - 1) * onOrb));

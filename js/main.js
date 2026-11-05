@@ -102,14 +102,14 @@ ScrollTrigger.create({
 const rot = $('.rotator');
 const words = $$('.rw', rot);
 let wi = 0;
-// long words shrink so the line never runs into the orb; width includes the italic overhang
+// every rotating word stays the same size as the rest of the headline: if the longest word wouldn't fit
+// beside "Every" (before the 3D shape), the whole headline scales down together; width includes the italic overhang
+const heroTitle = rot.closest('.hero-title');
 const sizeRot = () => {
-  const avail = (mobile ? innerWidth - 32 : innerWidth * 0.6) - rot.getBoundingClientRect().left;
-  words.forEach((w) => {
-    w.style.fontSize = '';
-    const nat = w.getBoundingClientRect().width;
-    w.style.fontSize = nat > avail ? (avail / nat).toFixed(3) + 'em' : '';
-  });
+  heroTitle.style.fontSize = '';
+  const avail = (mobile ? innerWidth - 32 : innerWidth * 0.53) - rot.getBoundingClientRect().left;
+  const longest = Math.max(...words.map((w) => w.getBoundingClientRect().width));
+  if (longest > avail) heroTitle.style.fontSize = (parseFloat(getComputedStyle(heroTitle).fontSize) * avail / longest).toFixed(1) + 'px';
   rot.style.width = words[wi].getBoundingClientRect().width + parseFloat(getComputedStyle(rot).paddingRight) + 'px';
 };
 function nextWord() {

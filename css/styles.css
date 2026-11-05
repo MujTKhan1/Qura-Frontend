@@ -186,11 +186,11 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 .hero-copy { max-width: 640px; padding-top: 60px; }
 .hero-live { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 12px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-size: 13px; color: var(--ink-2); margin-bottom: 28px; }
 .hero-live b { color: var(--teal-ink); font-variant-numeric: tabular-nums; }
-.hero-title { font-size: clamp(3rem, 7vw, 7rem); }
+.hero-title { font-size: clamp(2.8rem, 6.1vw, 6.2rem); }
 .hero-title .ln { display: block; padding-bottom: .22em; margin-bottom: -.22em; clip-path: inset(-.3em -100vw 0 -.3em); }   /* hides the slide-up, never the word ends */
 .hero-title .li { display: inline-block; white-space: nowrap; }
 .rotator { position: relative; display: inline-block; vertical-align: bottom; height: 1.12em; padding: 0 .12em .22em 0; margin-bottom: -.22em; overflow: hidden; transition: width .6s var(--ease); }
-.rw { position: absolute; left: 0; top: 0; white-space: nowrap; font-style: italic; color: var(--teal-ink); opacity: 0; transform: translateY(100%); }
+.rw { position: absolute; left: 0; top: 0; white-space: nowrap; font-style: italic; letter-spacing: -.015em; color: var(--teal-ink); opacity: 0; transform: translateY(100%); }
 .rw.on { position: relative; opacity: 1; transform: none; }
 .hero-lead { max-width: 520px; }
 .hero-ctas { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }

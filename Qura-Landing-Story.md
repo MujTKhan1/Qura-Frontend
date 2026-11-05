@@ -4,8 +4,8 @@ The scene numbers below are how we refer to each part of the page (the on-page n
 
 | # | Scene | Background | What happens in 3D |
 |---|-------|-----------|--------------------|
-| **0** | **Hero:** "Every *clinician / tender / vacancy / supplier / decision-maker.* Connected." | Clinical white | A moving pearl orb (the Qura core) with 6 platform cards orbiting it in 3D, plus thin orbit rings |
-| ↓ | *Transition* | — | Scrolling lifts the hero copy away; the orb breaks apart into particles |
+| **0** | **Hero:** "Every *clinician / tender / vacancy / supplier / buyer.* Connected." | Clinical white | **Three woven glass rings**, atom-style (three long ellipses at 0°, 60°, 120° weaving over and under; clinicians, providers, suppliers), rigid pearly glass, swaying and turning in their own plane; 6 platform cards orbit them in 3D, plus thin orbit rings. A beating glass heart + ECG variant is kept in code (`HERO_SHAPE` in `js/scene.js`) |
+| ↓ | *Transition* | — | Scrolling lifts the hero copy away; the rings break apart into particles that keep their shape, then form the globe |
 | **1** | **Ecosystem:** "Three communities. *One connected* healthcare sector." plus 4 stats | Clinical white | The particles form a turning network sphere with connecting lines |
 | **2** | **Fragmented:** "Healthcare is *fragmented.*" → "Roles here. Tenders there." → "Hours lost to… *stale data.*" | Cool grey-blue | The sphere bursts and 8 glass fragment cards fly out. The particles then **spread and leave the screen**, leaving **only the cards** |
 | **3** | **Verified:** "Get verified once. *Be seen everywhere.*" | Mint | The fragment cards fly into the verified profile card (with the sonographer photo); the checks tick and the *Verified* stamp lands |
