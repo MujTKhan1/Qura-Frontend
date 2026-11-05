@@ -8,7 +8,7 @@
 // Scene 3   No particles. The cards fly into the verified profile card.
 // Scene 4–5 The night (4) and morning (5) glass panels float beside the copy,
 //           and the page background shifts colour per scene.
-// Scene 6+  Plain DOM scenes (film, community cards, join).
+// Scenes 6–7 Film and community cards. Scene 8 brings the original Qura core back.
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
@@ -90,7 +90,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
   const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
   camera.position.set(0, Y0, 13.6);
 
-  const state = { target: 0, intro: 0, hero: 0, fragExit: 0 };
+  const state = { target: 0, intro: 0, hero: 0, fragExit: 0, close: 0 };
   const mouse = { x: 0, y: 0 };
   addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth - 0.5; mouse.y = e.clientY / innerHeight - 0.5; }, { passive: true });
 
@@ -184,6 +184,27 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     s.userData = { r: k % 2 ? ORBIT_R * 0.78 : ORBIT_R * 1.22, a: R() * 6.28, sp: 0.25 + R() * 0.3 };
     orbit.add(s); sats.push(s);
   }
+
+  // Reuse the opening core's geometry and shader in the closing invitation.
+  // Its shape and connections follow scroll progress, then remain still.
+  const closeAnchor = document.querySelector('.join-core-anchor');
+  const closeSection = document.querySelector('#join');
+  const closingScene = new THREE.Scene();
+  const closingCore = new THREE.Group(); closingCore.visible = false; closingScene.add(closingCore);
+  const closeMaterial = blob.material.clone();
+  closeMaterial.uniforms = THREE.UniformsUtils.clone(blobU);
+  const closeMesh = new THREE.Mesh(blob.geometry, closeMaterial); closingCore.add(closeMesh);
+  const closePaths = [
+    [[-4.6, 2.7, -.4], [-3.4, 2.7, -.2], [-2.5, 1.2, -.1], [-1.5, .5, 0]],
+    [[-4.3, -2.5, -.5], [-3.2, -2.5, -.3], [-2.5, -1.4, -.1], [-1.5, -.5, 0]],
+    [[-3.3, 3.7, -.6], [-2.4, 3.1, -.4], [-1.9, 2.1, -.1], [-.8, 1.4, 0]],
+  ].map((points) => {
+    const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+    const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(96));
+    const material = new THREE.LineBasicMaterial({ color: 0x00a39b, transparent: true, opacity: 0, toneMapped: false, depthWrite: false });
+    const line = new THREE.Line(geometry, material); closingCore.add(line); return line;
+  });
+  const closeRay = new THREE.Vector3();
 
   // ================= PARTICLES (scenes 0–2 only) =================
   const N = mobile ? 4500 : 9000;
@@ -507,10 +528,49 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     camera.position.z += (L(S.camZ) * zK - camera.position.z) * Math.min(1, dt * 3);
     camera.lookAt(0, L(S.lookY) + (mob ? -1.5 * panIn : 0), 0);
 
+    const closeProgress = clamp(state.close, 0, 1);
+    closingCore.visible = false;
+    if (closeAnchor && closeProgress > 0 && !mob) {
+      const bounds = closeAnchor.getBoundingClientRect();
+      closingCore.visible = bounds.top < H && bounds.bottom > 0;
+      if (closingCore.visible) {
+        camera.updateMatrixWorld();
+        closeRay.set((bounds.left + bounds.width / 2 + 90 * (1 - closeProgress)) / W * 2 - 1, 1 - (bounds.top + bounds.height / 2) / H * 2, .5).unproject(camera);
+        closeRay.sub(camera.position).normalize();
+        closingCore.position.copy(camera.position).addScaledVector(closeRay, -camera.position.z / closeRay.z);
+        const worldHeight = 2 * Math.tan(camera.fov * DEG / 2) * camera.position.z;
+        closingCore.scale.setScalar(bounds.width / H * worldHeight / (BLOB_R * 2) * (.94 + .06 * closeProgress));
+        closeMaterial.uniforms.uAlpha.value = .9 * smooth(0, .45, closeProgress);
+        closeMaterial.uniforms.uTime.value = 4 + closeProgress * 1.6;
+        closeMaterial.uniforms.uAmp.value = .8;
+        closeMaterial.uniforms.uDissolve.value = 0;
+        closeMaterial.uniforms.uMouse.value.set(0, 0);
+        closeMesh.rotation.set(.05, -.2 + .3 * closeProgress, 0);
+        closePaths.forEach((path, k) => {
+          const progress = smooth(k * .08, .7 + k * .08, closeProgress);
+          path.geometry.setDrawRange(0, Math.max(2, Math.floor(progress * 97)));
+          path.material.opacity = .24 * smooth(0, .2, closeProgress);
+        });
+      }
+    }
+
     cssStage.position.set(L(S.panX) * layoutK, (mob ? 3.0 : 0) - 5 * (1 - panIn), 0);
     cssStage.rotation.set(0, L(S.panRY) + mouse.x * 0.1, 0);
     cssStage.scale.setScalar(mob ? 0.55 : 1);
     renderer.render(scene, camera);
+    if (closingCore.visible) {
+      const sectionBounds = closeSection.getBoundingClientRect();
+      const top = clamp(sectionBounds.top, 0, H), bottom = clamp(sectionBounds.bottom, 0, H);
+      if (bottom > top) {
+        renderer.autoClear = false;
+        renderer.setScissor(0, H - bottom, W, bottom - top);
+        renderer.setScissorTest(true);
+        renderer.clearDepth();
+        renderer.render(closingScene, camera);
+        renderer.setScissorTest(false);
+        renderer.autoClear = true;
+      }
+    }
     css.render(cssScene, camera);
   }
 

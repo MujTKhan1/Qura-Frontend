@@ -144,6 +144,12 @@ function runLoader() {
 function intro() {
   document.body.classList.remove('loading');
   lenis && lenis.start();
+  // Resolve the closing-section link after the earlier pinned scenes are measured.
+  if (location.hash === '#join') {
+    ScrollTrigger.refresh();
+    const destination = scrollY + $('#join').getBoundingClientRect().top;
+    lenis ? lenis.scrollTo(destination, { immediate: true, force: true }) : window.scrollTo(0, destination);
+  }
   sizeRot();
   if (scene) gsap.to(scene.state, { intro: 1, duration: reduced ? 0.1 : 2.4, ease: 'power2.out' });
   gsap.timeline()
@@ -316,6 +322,23 @@ mm.add('(max-width: 900px)', () => {
   gsap.set('.vbar span', { scaleX: 1 });
   gsap.set('.stamp', { opacity: 1, scale: 1 });
 });
+
+/* ---------- Scene 8: the Qura core returns, then comes to rest ---------- */
+if (reduced) {
+  if (scene) scene.state.close = 1;
+} else {
+  const closing = gsap.timeline({ scrollTrigger: {
+    trigger: '#join', start: 'top 80%', end: 'top 10%', scrub: 0.6, refreshPriority: -2,
+    onUpdate: (self) => { if (scene) scene.state.close = self.progress; },
+  } });
+  closing
+    .fromTo('.join-halo', { opacity: 0 }, { opacity: 1, duration: 0.8 }, 0)
+    .fromTo('.join .offer-pill', { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3 }, 0.05)
+    .fromTo('.join-title', { y: 35, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, 0.14)
+    .fromTo('.join .body, .join-benefits', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, stagger: 0.08 }, 0.3)
+    .fromTo('.join .cta-actions, .join-note', { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, stagger: 0.06 }, 0.55)
+    .to({}, { duration: 0.15 });
+}
 
 /* ---------- Cursor + magnetic ---------- */
 if (fine && !reduced) {
