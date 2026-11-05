@@ -276,17 +276,23 @@ $$('.way-photo img').forEach((img) => {
   gsap.fromTo(img, { scale: 1.25, yPercent: -6 }, { scale: 1.02, yPercent: 0, ease: 'none', scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom 35%', scrub: true } });
 });
 
-/* ---------- Scene 4: AI match ring fills when night falls ---------- */
+/* ---------- Scene 4: the handover sheet fills in, line by line ---------- */
 ScrollTrigger.create({
   trigger: '#night', start: 'top 55%',
-  onEnter: () => gsap.to('#spNight .arc', { strokeDashoffset: 314 * 0.08, duration: 1.8, ease: 'power3.out' }),
-  onLeaveBack: () => gsap.set('#spNight .arc', { strokeDashoffset: 314 }),
+  onEnter: () => {
+    gsap.fromTo('#spNight .sh-log li', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.6, stagger: 0.22, ease: 'power3.out' });
+    gsap.fromTo('#spNight .tick', { scale: 0 }, { scale: 1, duration: 0.4, stagger: 0.22, delay: 0.35, ease: 'back.out(3)' });
+    gsap.fromTo('#spNight .stamp-ink', { scale: 2.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, delay: 0.9, ease: 'back.out(2)' });
+  },
 });
 
-/* ---------- Scene 5: digest rows arrive like mail ---------- */
+/* ---------- Scene 5: the email arrives, roles slot in ---------- */
 ScrollTrigger.create({
   trigger: '#morning', start: 'top 55%',
-  onEnter: () => gsap.fromTo('#spMorning .mock-row, #spMorning .digest-foot', { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, stagger: 0.25, ease: 'power3.out' }),
+  onEnter: () => {
+    gsap.fromTo('#spMorning .ml-new', { scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(3)' });
+    gsap.fromTo('#spMorning .ml-roles li', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.18, delay: 0.2, ease: 'power3.out' });
+  },
 });
 
 /* ---------- Scene 3: verification (pinned on desktop) ---------- */

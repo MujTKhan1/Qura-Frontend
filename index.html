@@ -56,29 +56,40 @@
     <div class="gchip" data-chip><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>Special school</small></div>
     <div class="gchip" data-chip><span class="chip c-gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small></div>
 
-    <!-- scene 4: AI match panel, floating (night) -->
-    <div class="gpanel sp sp-dark" id="spNight" data-scene="4">
-      <div class="match">
-        <svg viewBox="0 0 120 120" class="ring"><circle cx="60" cy="60" r="50"/><circle cx="60" cy="60" r="50" class="arc"/></svg>
-        <div class="match-score"><b>92%</b><small>match</small></div>
-        <div class="match-copy"><b>Sonography workforce requirement</b><small>3 suppliers fit · found at 02:14</small></div>
+    <!-- scene 4: overnight handover sheet, floating (night) -->
+    <div class="sp sp-sheet" id="spNight" data-scene="4">
+      <div class="sh-clip"></div>
+      <div class="sh-head">
+        <div><small>QURA · NIGHT SHIFT</small><h4>Overnight handover</h4></div>
+        <div class="sh-meta"><span>Wed 5 Nov</span><span>22:00 – 07:00</span></div>
       </div>
-      <div class="night-rows">
-        <div><span class="dot teal"></span>Market scan complete<em>01:40</em></div>
-        <div><span class="dot sky"></span>4 new tenders analysed<em>02:05</em></div>
-        <div><span class="dot teal"></span>Matches ready for review<em>02:14</em></div>
-        <div><span class="dot sky"></span>Decision-makers enriched<em>03:30</em></div>
-      </div>
+      <div class="sh-sub"><span>Patch: <b>UK &amp; Ireland market</b></span><span>Prepared for: <b>you</b></span></div>
+      <ol class="sh-log">
+        <li><time>23:10</time><p>Checked <b>1,240</b> NHS &amp; private listings for changes</p><i class="tick"></i></li>
+        <li><time>01:40</time><p><b>4 new tenders</b> read, each summarised in plain English</p><i class="tick"></i></li>
+        <li class="flag"><time>02:14</time><p><b>Sonography workforce requirement</b>, Leeds. 3 of your suppliers fit</p><span class="stamp-ink">Review first</span></li>
+        <li><time>03:30</time><p>Named decision-makers re-checked at <b>12 trusts</b></p><i class="tick"></i></li>
+        <li><time>05:05</time><p><b>37</b> duplicate vacancies merged</p><i class="tick"></i></li>
+      </ol>
+      <div class="sh-foot"><span>Qura flags. <b>You decide.</b></span><span class="sign">Handed over 07:00</span></div>
     </div>
-    <!-- scene 5: morning digest panel, floating -->
-    <div class="gpanel sp" id="spMorning" data-scene="5">
-      <div class="digest-head"><span>☀</span><b>Your morning digest</b><small>07:00</small></div>
-      <div class="mock-row"><span class="dot amber"></span>Special school · Teaching Assistant<em>new</em></div>
-      <div class="mock-row"><span class="dot amber"></span>Residential care · Support Worker<em>new</em></div>
-      <div class="mock-row"><span class="dot teal"></span>Care provider · Registered Manager<em>2d</em></div>
-      <div class="mock-row"><span class="dot amber"></span>SEND school · Speech &amp; Language<em>new</em></div>
-      <div class="mock-row"><span class="dot teal"></span>Children's home · Deputy Manager<em>new</em></div>
-      <div class="digest-foot"><b>14</b> new since yesterday · 3 match your profile</div>
+    <!-- scene 5: the morning digest email, floating -->
+    <div class="sp sp-mail" id="spMorning" data-scene="5">
+      <div class="ml-bar"><i></i><i></i><i></i><span>Inbox</span><em>1 new</em></div>
+      <div class="ml-head">
+        <span class="ml-av"><span class="orb"></span></span>
+        <div><b>Qura Morning Digest</b><small>to you · 07:00</small></div>
+        <span class="ml-new">New</span>
+      </div>
+      <h4 class="ml-subj">14 new SEND &amp; care roles since yesterday</h4>
+      <p class="ml-hi">Good morning. Three of these match your profile, so they're at the top.</p>
+      <ul class="ml-roles">
+        <li class="fit"><span class="ml-ic amber">SS</span><div><b>Teaching Assistant</b><small>Oakfield Special School · Manchester · 2 mi</small></div><em>Matches you</em></li>
+        <li class="fit"><span class="ml-ic teal">RC</span><div><b>Support Worker</b><small>Residential care · Salford · 4 mi</small></div><em>Matches you</em></li>
+        <li class="fit"><span class="ml-ic sky">SL</span><div><b>Speech &amp; Language Therapist</b><small>SEND school · Stockport · 6 mi</small></div><em>Matches you</em></li>
+        <li><span class="ml-ic gray">CH</span><div><b>Deputy Manager</b><small>Children's home · Bolton · 9 mi</small></div><em>New</em></li>
+      </ul>
+      <div class="ml-foot"><span class="ml-btn">See all 14 roles</span><small>Delivered before your first coffee</small></div>
     </div>
   </div>
 

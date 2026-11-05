@@ -66,7 +66,7 @@ main, .footer { position: relative; z-index: 3; }
   backdrop-filter: blur(10px) saturate(150%); -webkit-backdrop-filter: blur(10px) saturate(150%);
   overflow: hidden; font-family: var(--sans);
 }
-.sp { width: 420px; padding: 24px; }
+.sp { width: 540px; padding: 24px; font-family: var(--sans); color: var(--ink); }
 .digest-foot { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
 .digest-foot b { color: var(--teal-ink); }
 .sp .live-head { display: flex; align-items: center; gap: 10px; font-size: 14px; }
@@ -475,3 +475,56 @@ h1 em, .h1 em, .h2 em { font-style: italic; background: var(--grad-text); -webki
 /* TEMP: scene number badge for review (remove before launch) */
 #sceneTag { position: fixed; left: 16px; bottom: 16px; z-index: 95; display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 99px; background: #101d38; color: #fff; font: 600 13px/1 var(--sans); box-shadow: 0 8px 24px -8px rgba(0,0,0,.45); pointer-events: none; }
 #sceneTag b { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #ff4d6d; font-size: 15px; }
+
+/* ============ Scene 4: overnight handover sheet (paper, not glass) ============ */
+.sp-sheet { position: relative; padding: 34px 34px 26px; border-radius: 6px; background: #fbf8f1; color: #1c2740;
+  background-image: repeating-linear-gradient(180deg, transparent 0 33px, rgba(28,39,64,.06) 33px 34px);
+  box-shadow: 0 1px 0 #fff inset, 0 2px 0 rgba(0,0,0,.04), 0 40px 70px -30px rgba(0,0,0,.75), 0 0 0 1px rgba(0,0,0,.05); }
+.sh-clip { position: absolute; top: -14px; left: 50%; width: 120px; height: 26px; margin-left: -60px; border-radius: 6px;
+  background: linear-gradient(180deg, #c9ced8, #9aa2b1); box-shadow: 0 4px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.6); }
+.sh-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 12px; border-bottom: 2px solid #1c2740; }
+.sh-head small { font-size: 10.5px; letter-spacing: .22em; color: #6b7487; font-weight: 600; }
+.sh-head h4 { font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.1; margin-top: 4px; }
+.sh-meta { display: grid; text-align: right; font-size: 12.5px; color: #6b7487; font-variant-numeric: tabular-nums; }
+.sh-sub { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0 6px; font-size: 12.5px; color: #6b7487; }
+.sh-sub b { color: #1c2740; font-weight: 600; }
+.sh-log { list-style: none; margin: 4px 0 0; padding: 0; }
+.sh-log li { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px dashed rgba(28,39,64,.18); }
+.sh-log time { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; color: #6b7487; }
+.sh-log p { font-size: 14px; line-height: 1.4; margin: 0; }
+.sh-log b { font-weight: 600; }
+.sh-log .tick { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #2e7d6b; position: relative; }
+.sh-log .tick::after { content: ""; position: absolute; left: 6px; top: 2.5px; width: 5px; height: 9px; border: solid #2e7d6b; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.sh-log li.flag { background: rgba(214,88,52,.07); margin: 0 -12px; padding: 11px 12px; border-radius: 4px; border-bottom-color: transparent; }
+.stamp-ink { font-family: var(--serif); font-style: italic; font-size: 13px; color: #c4502f; border: 1.5px solid #c4502f; border-radius: 4px; padding: 2px 8px; transform: rotate(-6deg); white-space: nowrap; }
+.sh-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; color: #6b7487; }
+.sh-foot b { color: #1c2740; }
+.sh-foot .sign { font-family: var(--serif); font-style: italic; font-size: 15px; color: #1c2740; border-bottom: 1px solid #1c2740; padding: 0 4px 2px; }
+
+/* ============ Scene 5: the digest as a real email ============ */
+.sp-mail { padding: 0; border-radius: 18px; background: #fff; overflow: hidden; box-shadow: 0 40px 70px -30px rgba(120,70,30,.45), 0 0 0 1px rgba(16,29,56,.06); }
+.ml-bar { display: flex; align-items: center; gap: 7px; padding: 12px 18px; background: #f6f4f1; border-bottom: 1px solid #ece7e1; font-size: 12.5px; color: #6b7487; }
+.ml-bar i { width: 10px; height: 10px; border-radius: 50%; background: #e2ddd6; }
+.ml-bar span { margin-left: 10px; font-weight: 600; color: #1c2740; }
+.ml-bar em { margin-left: auto; font-style: normal; font-size: 11.5px; color: #b0632a; background: #fdeee0; padding: 3px 9px; border-radius: 99px; font-weight: 600; }
+.ml-head { display: flex; align-items: center; gap: 12px; padding: 20px 26px 0; }
+.ml-av { width: 40px; height: 40px; border-radius: 50%; background: #eef6f5; display: grid; place-items: center; }
+.ml-av .orb { width: 20px; height: 20px; }
+.ml-head b { display: block; font-size: 14.5px; }
+.ml-head small { font-size: 12.5px; color: #6b7487; }
+.ml-new { margin-left: auto; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #1c2740; padding: 4px 9px; border-radius: 6px; }
+.ml-subj { font-family: var(--serif); font-weight: 400; font-size: 25px; line-height: 1.2; padding: 16px 26px 0; }
+.ml-hi { font-size: 14px; color: #4d5870; padding: 6px 26px 0; margin: 0; }
+.ml-roles { list-style: none; margin: 14px 0 0; padding: 0 18px; }
+.ml-roles li { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px; padding: 11px 8px; border-top: 1px solid #f0ece6; }
+.ml-roles li.fit { background: linear-gradient(90deg, rgba(239,159,39,.08), transparent 70%); }
+.ml-ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.ml-ic.amber { background: #fdeee0; color: #b0632a; } .ml-ic.teal { background: #e3f4f2; color: #06776f; }
+.ml-ic.sky { background: #e8f0fc; color: #2f63b5; } .ml-ic.gray { background: #f1f2f5; color: #5d6679; }
+.ml-roles b { display: block; font-size: 14.5px; font-weight: 600; }
+.ml-roles small { font-size: 12.5px; color: #6b7487; }
+.ml-roles em { font-style: normal; font-size: 11.5px; font-weight: 600; color: #6b7487; white-space: nowrap; }
+.ml-roles li.fit em { color: #b0632a; }
+.ml-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 26px 22px; border-top: 1px solid #f0ece6; }
+.ml-btn { background: #1c2740; color: #fff; font-size: 13.5px; font-weight: 600; padding: 10px 18px; border-radius: 10px; }
+.ml-foot small { font-size: 12.5px; color: #6b7487; font-style: italic; }

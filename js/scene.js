@@ -39,8 +39,8 @@ const S = {
   camY:  [Y0, Y0, 3.4, 3.1, 3.4, 3.4, 3.5, 3.5, 3.5],
   camZ:  [13.6, 13.0, 14.6, 13, 13.6, 13.6, 13.5, 13.5, 13.5],
   lookY: [Y0, Y0, 2.2, 2.8, 3.4, 3.4, 2.7, 2.7, 2.7],
-  panX:  [0, 0, 0, 3.6, -3.4, 3.4, 0, 0, 0],   // where the floating scene panels sit
-  panRY: [0, 0, 0, -0.35, 0.3, -0.3, 0, 0, 0],
+  panX:  [0, 0, 0, 3.6, -3.9, 3.9, 0, 0, 0],   // where the floating scene panels sit
+  panRY: [0, 0, 0, -0.35, 0.22, -0.22, 0, 0, 0],
   bg:    ['#f7fafc', '#f7fafc', '#e4e9f1', '#e8f7f4', '#0e1b33', '#fff1e6', '#eef3f9', '#f7fafc', '#f2f8f8'],
 };
 const LAST = S.camY.length - 1;
@@ -301,7 +301,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
     };
     return o;
   });
-  const PANEL_S = 0.0128;                              // scene panels: big and readable
+  const PANEL_S = 0.0132;                              // scene panels: big and readable
   const panelObjs = panels.map((el) => {
     const h = el.offsetHeight || 420;
     const o = toCss(el, cssStage, PANEL_S);
@@ -495,7 +495,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], panels
       const v = bump(s, o.userData.k, 1.9);
       o.visible = v > 0.005;
       if (!o.visible) return;
-      o.position.set(0, 1.3 + o.userData.h / 2 - 1.8 * (1 - v) + Math.sin(t * 0.9 + o.userData.k) * 0.08, 0.15);   // floats gently
+      o.position.set(0, 3.2 - 1.8 * (1 - v) + Math.sin(t * 0.9 + o.userData.k) * 0.08, 0.15);   // centred in view, floats gently
       o.rotation.set(0, 0, 0);
       o.element.style.opacity = v.toFixed(3);
     });
