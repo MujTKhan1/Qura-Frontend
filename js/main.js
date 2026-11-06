@@ -1,355 +1,294 @@
-import { initScene } from './scene.js';
+/* Qura — product-led redesign
+   Natural scrolling everywhere, with two choreographed moments:
+   1. scattered records → connected platform (#platform)
+   2. night → morning (#overnight)                                  */
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const seg = (p, a, b) => clamp((p - a) / (b - a));
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasGsap = !!(window.gsap && window.ScrollTrigger);
+  const desktop = () => innerWidth > 1080;
+  if (hasGsap) gsap.registerPlugin(ScrollTrigger);
 
-const gsap = window.gsap;
-const ScrollTrigger = window.ScrollTrigger;
-gsap.registerPlugin(ScrollTrigger);
+  /* ---------- header ---------- */
+  const header = $('.site-header');
+  const onScroll = () => header.classList.toggle('scrolled', scrollY > 24);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-const mobile = matchMedia('(max-width: 900px)').matches;
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const fine = matchMedia('(pointer: fine)').matches;
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-
-document.body.classList.add('loading');
-const header = $('.site-header');
-const burger = $('.burger');
-
-/* ---------- Smooth scroll ---------- */
-let lenis = null;
-if (!reduced && window.Lenis) {
-  lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add((t) => lenis.raf(t * 1000));
-  gsap.ticker.lagSmoothing(0);
-  lenis.stop();
-}
-$$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
-  const id = a.getAttribute('href');
-  if (id.length < 2) return;
-  const el = $(id); if (!el) return;
-  e.preventDefault();
-  header.classList.remove('menu-open'); burger.setAttribute('aria-expanded', 'false');
-  lenis ? lenis.scrollTo(el, { duration: 1.8 }) : el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
-}));
-
-/* ---------- 3D scene ---------- */
-let scene = null;
-try {
-  scene = initScene({
-    canvas: $('#webgl'), cssRoot: $('#css3d'),
-    orbitCards: $$('.oc'), chips: $$('[data-chip]'), colLabels: $$('[data-collabel]'), panels: $$('.sp'), pings: $$('.gping'),
-    mobile, reduced,
-  });
-} catch (err) { console.warn('3D scene unavailable', err); }
-
-// scene number = how many [data-stage] sections have scrolled in (continuous)
-const stageEls = $$('[data-stage]');
-function computeStage() {
-  const vh = innerHeight; let s = 0;
-  for (const el of stageEls) s += clamp((vh * 0.8 - el.getBoundingClientRect().top) / (vh * 0.6), 0, 1);
-  return s;
-}
-
-const fragEl = $('#fragmented');
-gsap.ticker.add(() => {
-  const s = computeStage();
-  if (scene) scene.state.fragOut = clamp(-fragEl.getBoundingClientRect().top / (innerHeight * 0.5), 0, 1);   // page 2 scrolling away after its pin
-  if (!scene) return; scene.state.target = s; scene.tick();
-});
-
-/* ---------- Split headings ---------- */
-$$('[data-split]').forEach((el) => {
-  const walk = (node) => {
-    [...node.childNodes].forEach((n) => {
-      if (n.nodeType === 3) {
-        const frag = document.createDocumentFragment();
-        n.textContent.split(/(\s+)/).forEach((part) => {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
-          const w = document.createElement('span'); w.className = 'w';
-          const wi = document.createElement('span'); wi.className = 'wi'; wi.textContent = part;
-          w.appendChild(wi); frag.appendChild(w);
-        });
-        n.replaceWith(frag);
-      } else if (n.nodeType === 1 && n.tagName !== 'BR') walk(n);
+  /* ---------- platform film: plays only when the visitor chooses ---------- */
+  const player = $('[data-player]');
+  if (player) {
+    const v = $('video', player), fill = $('[data-fill]', player), time = $('[data-time]', player), msg = $('[data-msg]', player);
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    const say = (t) => { msg.textContent = t; msg.classList.toggle('on', !!t); if (t) setTimeout(() => msg.classList.remove('on'), 3200); };
+    const sync = () => {
+      player.classList.toggle('playing', !v.paused);
+      player.classList.toggle('muted', v.muted);
+      $('[data-toggle]', player).setAttribute('aria-label', v.paused ? 'Play' : 'Pause');
+      $('[data-mute]', player).setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute');
+    };
+    const play = () => {
+      if (!player.classList.contains('started')) { v.currentTime = 0; player.classList.add('started'); }
+      v.play().catch(() => say('The film could not start. Check your connection and try again.'));
+    };
+    $('[data-play]', player).addEventListener('click', () => { play(); $('[data-toggle]', player).focus({ preventScroll: true }); });
+    $('[data-toggle]', player).addEventListener('click', () => (v.paused ? play() : v.pause()));
+    $('[data-mute]', player).addEventListener('click', () => { v.muted = !v.muted; sync(); });
+    $('[data-track]', player).addEventListener('click', (e) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      if (v.duration) v.currentTime = clamp((e.clientX - r.left) / r.width) * v.duration;
     });
-  };
-  walk(el);
-});
-$$('[data-split] em').forEach((em) => { em.style.background = 'none'; em.style.color = 'inherit'; });
-$$('[data-split] em .wi').forEach((wi) => {
-  wi.style.background = 'var(--grad-text)';
-  wi.style.webkitBackgroundClip = 'text'; wi.style.backgroundClip = 'text'; wi.style.color = 'transparent';
-});
-
-/* ---------- Header ---------- */
-burger.addEventListener('click', () => {
-  const open = header.classList.toggle('menu-open');
-  burger.setAttribute('aria-expanded', String(open));
-});
-$('.offer-close').addEventListener('click', () => $('.offer-bar').classList.add('closed'));
-let lastY = 0;
-ScrollTrigger.create({
-  start: 0, end: 'max',
-  onUpdate: (self) => {
-    const y = self.scroll();
-    header.classList.toggle('scrolled', y > 40);
-    header.classList.toggle('hide', y > lastY && y > 300 && !header.classList.contains('menu-open'));
-    lastY = y;
-  },
-});
-
-/* ---------- Hero: rotating word + band ---------- */
-const rot = $('.rotator');
-const words = $$('.rw', rot);
-let wi = 0;
-// every rotating word stays the same size as the rest of the headline: if the longest word wouldn't fit
-// beside "Every" (before the 3D shape), the whole headline scales down together; width includes the italic overhang
-const heroTitle = rot.closest('.hero-title');
-const sizeRot = () => {
-  heroTitle.style.fontSize = '';
-  const avail = (mobile ? innerWidth - 32 : innerWidth * 0.53) - rot.getBoundingClientRect().left;
-  const longest = Math.max(...words.map((w) => w.getBoundingClientRect().width));
-  if (longest > avail) heroTitle.style.fontSize = (parseFloat(getComputedStyle(heroTitle).fontSize) * avail / longest).toFixed(1) + 'px';
-  rot.style.width = words[wi].getBoundingClientRect().width + parseFloat(getComputedStyle(rot).paddingRight) + 'px';
-};
-function nextWord() {
-  const cur = words[wi]; wi = (wi + 1) % words.length; const nxt = words[wi];
-  cur.classList.remove('on');
-  gsap.fromTo(cur, { yPercent: 0, opacity: 1 }, { yPercent: -100, opacity: 0, duration: 0.6, ease: 'power3.in' });
-  nxt.classList.add('on');
-  gsap.fromTo(nxt, { yPercent: 100, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, delay: 0.35, ease: 'expo.out' });
-  sizeRot();
-}
-addEventListener('resize', sizeRot);
-const hb = $('.hb-track'); hb.innerHTML += hb.innerHTML;
-
-/* ---------- Loader → intro ---------- */
-function runLoader() {
-  const count = $('.loader-count'), bar = $('.loader-bar span'), o = { v: 0 };
-  gsap.timeline({ onComplete: intro })
-    .to(o, { v: 100, duration: reduced ? 0.2 : 1.2, ease: 'power2.inOut', onUpdate: () => { count.textContent = Math.round(o.v); bar.style.width = o.v + '%'; } })
-    .to('#loader', { yPercent: -100, duration: reduced ? 0.2 : 1, ease: 'expo.inOut' }, '+=0.1')
-    .set('#loader', { display: 'none' });
-}
-function intro() {
-  document.body.classList.remove('loading');
-  lenis && lenis.start();
-  sizeRot();
-  if (scene) gsap.to(scene.state, { intro: 1, duration: reduced ? 0.1 : 2.4, ease: 'power2.out' });
-  gsap.timeline()
-    .from('.nav > *', { y: -20, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' }, 0)
-    .from('.hero-live', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out' }, 0.2)
-    .from('.hero-title .li', { yPercent: 110, duration: 1.3, stagger: 0.12, ease: 'expo.out' }, 0.35)
-    .from('.hero-lead', { y: 24, opacity: 0, duration: 1, ease: 'power3.out' }, 0.8)
-    .from('.hero-ctas > *', { y: 24, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'power3.out' }, 0.95)
-    .from('.hero-trust li', { y: 12, opacity: 0, duration: 0.7, stagger: 0.06, ease: 'power3.out' }, 1.1)
-    .from('.oc-in', { scale: 0.7, opacity: 0, duration: 1.1, stagger: 0.08, ease: 'expo.out' }, 0.6)
-    .from('.hero-band', { yPercent: 100, duration: 1, ease: 'expo.out' }, 1.0);
-  if (!reduced) setInterval(() => { if (!document.hidden) nextWord(); }, 2400);
-}
-
-/* ---------- Hero → Ecosystem: copy lifts away, orb dissolves into particles ---------- */
-gsap.timeline({
-  scrollTrigger: {
-    trigger: '#hero', start: 'top top', end: mobile ? '+=90%' : '+=130%', scrub: 1, pin: true,
-    onUpdate: (self) => { if (scene) scene.state.hero = self.progress; },
-  },
-})
-  .to('.hero-copy', { y: -120, opacity: 0, duration: 1, ease: 'power2.in' }, 0)
-  .to('.hero-band', { opacity: 0, duration: 0.4 }, 0)
-  .to({}, { duration: 1.6 });
-
-/* ---------- Scene 2: problem → fix → how (pinned) ----------
-   act 1 (0–.34): the problem; each card gets a red-ink problem stamp, the particles leave
-   act 2 (.36–.66): "Qura puts it back together", cards fly into a three-column board and flip to their fixed side
-   act 3 (.66–1): the columns are named after the module that fixed them (scene.js reads state.frag) */
-const blurIn = { opacity: 0, y: 50, filter: 'blur(12px)' };
-const blurOn = { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1, ease: 'power2.out' };
-const blurOut = { opacity: 0, y: -50, filter: 'blur(12px)', duration: 1, ease: 'power2.in' };
-gsap.timeline({
-  scrollTrigger: {
-    trigger: '#fragmented', start: 'top top', end: mobile ? '+=240%' : '+=320%', scrub: 1, pin: true,
-    onUpdate: (self) => { if (scene) { scene.state.frag = self.progress; scene.state.fragExit = clamp((self.progress - 0.16) / 0.24, 0, 1); } },
-  },
-})
-  .fromTo('.frag-line[data-i="0"]', blurIn, blurOn, 0)
-  .to('.frag-line[data-i="0"]', blurOut, 1.5)
-  .set('.frag-line[data-i="1"]', { opacity: 1 }, 1.9)
-  .fromTo('.frag-three > span', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.6, stagger: 0.35, ease: 'power2.out' }, 1.9)
-  .to('.frag-line[data-i="1"]', blurOut, 3.2)
-  .fromTo('.frag-line[data-i="2"]', blurIn, blurOn, 3.7)
-  .fromTo('.frag-line[data-i="3"]', blurIn, blurOn, 6.8)
-  .to({}, { duration: 2.2 });
-
-/* ---------- Reveals ---------- */
-$$('.reveal').forEach((el) => {
-  gsap.from(el, { y: 40, opacity: 0, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' } });
-});
-$$('[data-split]').forEach((el) => {
-  gsap.from($$('.wi', el), { yPercent: 110, duration: 1.1, stagger: 0.05, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' } });
-});
-
-/* ---------- Counters ---------- */
-$$('[data-count]').forEach((el) => {
-  const end = +el.dataset.count, suf = el.dataset.suffix || '', o = { v: 0 };
-  ScrollTrigger.create({
-    trigger: el, start: 'top 90%', once: true,
-    onEnter: () => gsap.to(o, { v: end, duration: 2, ease: 'power3.out', onUpdate: () => (el.textContent = Math.round(o.v).toLocaleString('en-GB') + suf) }),
-  });
-});
-
-/* ---------- Scene 6: live marketplace ticker (beside the film) ---------- */
-// [title, sector (optional), place, closes-in days]; the blurred tail mimics the locked full title
-const pool = [
-  ['Procurement for Additional NHS', '', 'Cardiff', 30],
-  ['Flexible Framework Agreement', 'Mental Health & Substance Misuse', 'Ayr', 30],
-  ['Community Smoking Cessation', '', 'Wolverhampton', 28],
-  ['Smoking Cessation', '', 'Wolverhampton', 26],
-  ['BME Mental Health', 'Mental Health & Substance Misuse', 'Cardiff', 23],
-  ['Fully Managed Renal Services', 'Renal', 'London', 29],
-  ['Radiography Workforce Supply', 'Diagnostics', 'Dublin', 18],
-  ['SEND Teaching Assistants', 'SEND & Care', 'Manchester', 21],
-  ['Registered Nurses, ICU', '', 'Sydney', 14],
-];
-const list = $('#liveList');
-let pi = 0;
-const li = ([t, sec, place, d]) => {
-  const el = document.createElement('li');
-  el.innerHTML = `<i class="ld"></i><div class="lt"><b>${t} <span class="lock">provision of specialist services</span></b>`
-    + `<small>${sec ? `<em>${sec}</em> · ` : ''}${place} <span class="lock">commissioning organisation</span></small></div>`
-    + `<div class="lc"><small>Closes</small><b>in ${d} days</b></div>`;
-  return el;
-};
-for (let k = 0; k < 5; k++) list.appendChild(li(pool[pi++ % pool.length]));
-setInterval(() => {
-  if (document.hidden) return;
-  const el = li(pool[pi++ % pool.length]);
-  list.prepend(el);
-  gsap.from(el, { height: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, marginBottom: 0, duration: 0.7, ease: 'power3.out' });
-  gsap.fromTo(el, { boxShadow: '0 0 0 1px rgba(0,194,184,.8), 0 0 22px rgba(0,194,184,.45)' }, { boxShadow: '0 0 0 1px rgba(0,194,184,0), 0 0 0 rgba(0,194,184,0)', duration: 2.2 });
-  const last = list.lastElementChild;
-  gsap.to(last, { opacity: 0, duration: 0.4, onComplete: () => last.remove() });
-  const n = 63 + Math.floor(Math.random() * 6);
-  $$('.live-n').forEach((x) => (x.textContent = n));
-}, 3200);
-
-/* ---------- Scene 6: the film. Frame swings up flat, lenses pop, the board slides in ---------- */
-const filmTl = gsap.timeline({
-  scrollTrigger: mobile
-    ? { trigger: '#film', start: 'top 80%', end: 'top 20%', scrub: 1 }
-    : { trigger: '#film', start: 'top top', end: '+=120%', scrub: 1, pin: true, refreshPriority: -1 },   // after the verified pin above it
-});
-filmTl
-  .fromTo('.film-head', { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, 0)
-  .fromTo('.film-frame', { rotationX: 28, rotationY: -10, scale: 0.78, y: 160, opacity: 0, transformPerspective: 1600 },
-    { rotationX: 0, rotationY: 0, scale: 1, y: 0, opacity: 1, duration: 1.4, ease: 'power2.out' }, 0.1)
-  .fromTo('.film-title', { y: 40, opacity: 0, filter: 'blur(10px)' }, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 0.6 }, 0.9)
-  .fromTo('.lens span', { y: 26, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, stagger: 0.09, ease: 'back.out(2)' }, 1.15)
-  .fromTo('.film-play', { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(2.2)' }, 1.5)
-  .fromTo('.live-board', { x: 140, rotationY: -24, opacity: 0, transformPerspective: 1600 },
-    { x: 0, rotationY: 0, opacity: 1, duration: 1.1, ease: 'power2.out' }, 0.7)
-  .fromTo('.live-cta', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 }, 1.8)
-  .to({}, { duration: 0.6 });
-
-const video = $('#filmVideo'), poster = $('.film-poster'), note = $('.film-note');
-$('.film-play').addEventListener('click', async () => {
-  try {
-    if (video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) throw new Error('no video file');
-    await video.play();
-    video.controls = true;
-    gsap.to(poster, { opacity: 0, scale: 1.04, duration: 0.6, ease: 'power2.inOut', onComplete: () => (poster.style.display = 'none') });
-  } catch {
-    note.textContent = 'Video file not added yet (assets/qura-overview.mp4)';
-    gsap.fromTo(note, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: 0.4 });
+    v.addEventListener('timeupdate', () => {
+      if (!v.duration) return;
+      fill.style.width = (v.currentTime / v.duration) * 100 + '%';
+      time.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+    });
+    ['play', 'pause', 'volumechange'].forEach((e) => v.addEventListener(e, sync));
+    v.addEventListener('ended', () => { player.classList.remove('started'); sync(); });
+    v.addEventListener('error', () => say('The film is unavailable right now.'));
+    // pause when scrolled well out of view
+    new IntersectionObserver(([en]) => { if (!en.isIntersecting && !v.paused) v.pause(); }, { threshold: 0.15 }).observe(player);
+    sync();
   }
-});
 
-/* ---------- Scene 7: community cards rise in 3D, photos settle ---------- */
-gsap.fromTo('.way', { y: 120, rotationX: 22, opacity: 0, transformPerspective: 1400, transformOrigin: '50% 100%' },
-  { y: 0, rotationX: 0, opacity: 1, duration: 1.2, stagger: 0.14, ease: 'expo.out', scrollTrigger: { trigger: '.ways', start: 'top 85%', toggleActions: 'play none none reverse' } });
-$$('.way-photo img').forEach((img) => {
-  gsap.fromTo(img, { scale: 1.25, yPercent: -6 }, { scale: 1.02, yPercent: 0, ease: 'none', scrollTrigger: { trigger: img, start: 'top bottom', end: 'bottom 35%', scrub: true } });
-});
+  /* ---------- hero: rotating word ---------- */
+  const rot = $('.rot');
+  if (rot) {
+    const words = $$('.rw', rot);
+    let cur = 0;
+    const fit = () => { rot.style.width = words[cur].getBoundingClientRect().width + 'px'; };
+    fit();
+    if (document.fonts) document.fonts.ready.then(fit);
+    addEventListener('resize', fit);
+    setInterval(() => {
+      if (document.hidden) return;
+      const prev = words[cur];
+      cur = (cur + 1) % words.length;
+      prev.classList.remove('on'); prev.classList.add('out');
+      words[cur].classList.remove('out'); words[cur].classList.add('on');
+      setTimeout(() => prev.classList.remove('out'), 650);
+      fit();
+    }, 2600);
+  }
 
-/* ---------- Scene 4: the handover sheet fills in, line by line ---------- */
-ScrollTrigger.create({
-  trigger: '#night', start: 'top 55%',
-  onEnter: () => {
-    gsap.fromTo('#spNight .sh-log li', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.6, stagger: 0.22, ease: 'power3.out' });
-    gsap.fromTo('#spNight .tick', { scale: 0 }, { scale: 1, duration: 0.4, stagger: 0.22, delay: 0.35, ease: 'back.out(3)' });
-    gsap.fromTo('#spNight .stamp-ink', { scale: 2.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, delay: 0.9, ease: 'back.out(2)' });
-  },
-});
+  /* ---------- film: frame settles to full size as it arrives ---------- */
+  if (hasGsap && !reduced) {
+    gsap.fromTo('#showcase', { scale: 0.92 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.showcase-frame', start: 'top 95%', end: 'top 25%', scrub: true } });
+  }
 
-/* ---------- Scene 5: the email arrives, roles slot in ---------- */
-ScrollTrigger.create({
-  trigger: '#morning', start: 'top 55%',
-  onEnter: () => {
-    gsap.fromTo('#spMorning .ml-new', { scale: 0 }, { scale: 1, duration: 0.5, ease: 'back.out(3)' });
-    gsap.fromTo('#spMorning .ml-roles li', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.18, delay: 0.2, ease: 'power3.out' });
-  },
-});
+  /* =========================================================
+     PROBLEM → FIX → HOW
+     Act 1  scattered records get red problem stamps
+     Act 2  they fly into a three-column board and flip to their fixed side
+     Act 3  each column is named after the Qura module that fixed it
+     ========================================================= */
+  const frag = $('.frag');
+  const pin = $('.frag-pin');
+  const cards = $$('.fc', frag);
+  const lines = $$('.fl', frag);
+  const labels = $$('.colbl', frag);
+  const threeSpans = $$('.frag-three span', frag);
+  // scattered start, as a fraction of the free area (x, y) plus rotation
+  const SCAT = [
+    [0.02, 0.42, -8], [0.10, 0.95, 6],             // clinicians
+    [0.18, 0.02, 4], [0.34, 1.0, -5], [0.64, 0.98, 7], // providers
+    [0.78, 0.0, -6], [0.98, 0.44, 5], [0.90, 0.92, -4], // suppliers
+  ];
+  let geo = null;
 
-/* ---------- Scene 3: verification (pinned on desktop) ---------- */
-const mm = gsap.matchMedia();
-mm.add('(min-width: 901px)', () => {
-  const v = gsap.timeline({ scrollTrigger: { trigger: '#verified', start: 'top top', end: '+=180%', pin: true, scrub: 1 } });
-  v.fromTo('.vcard', { rotationY: -30, rotationX: 12, y: 40, opacity: 0.3 }, { rotationY: 0, rotationX: 0, y: 0, opacity: 1, duration: 4, ease: 'none' }, 0)
-    .to('.vbar span', { scaleX: 1, duration: 4, ease: 'none' }, 0);
-  $$('.vstep').forEach((st, k) => {
-    v.to(st, { opacity: 1, duration: 0.4 }, k)
-      .to($$('.vchecks i')[k], { '--k': 1, duration: 0.3, ease: 'back.out(3)' }, k + 0.3)
-      .to($$('.vchecks li')[k], { color: '#101d38', duration: 0.3 }, k + 0.3);
-    if (k < 3) v.to(st, { opacity: 0.45, duration: 0.3 }, k + 0.85);
+  function layoutFrag() {
+    const W = pin.clientWidth, H = pin.clientHeight;
+    const nav = 64, cw = Math.min(264, (W - 120 - 2 * 36) / 3), ch = 96, gx = 36;
+    cards.forEach((c) => (c.style.width = cw + 'px'));
+    const topLine = lines[2];
+    const tlBottom = topLine.offsetTop + topLine.offsetHeight;
+    const labelsY = tlBottom + 26;
+    const boardY = labelsY + 52;
+    const avail = H - 110 - boardY;
+    const step = Math.max(ch + 6, Math.min(ch + 16, (avail - ch) / 2));
+    const x0 = W / 2 - (3 * cw + 2 * gx) / 2;
+    geo = {
+      W, H, cw, ch,
+      slots: cards.map((c) => {
+        const col = +c.dataset.col, row = +c.dataset.row;
+        return { x: x0 + col * (cw + gx), y: boardY + row * step };
+      }),
+      from: cards.map((c, i) => {
+        const [fx, fy, r] = SCAT[i];
+        return { x: 16 + fx * (W - cw - 32), y: nav + 30 + fy * (H - nav - 30 - ch - 40), r };
+      }),
+    };
+    labels.forEach((l) => {
+      const col = +l.dataset.col;
+      l.style.transform = `translate(${x0 + col * (cw + gx)}px, ${labelsY}px)`;
+    });
+  }
+
+  function renderFrag(p) {
+    if (!geo) return;
+    // headlines
+    const vis = [
+      Math.min(seg(p, -0.05, 0.0), 1 - seg(p, 0.16, 0.2)),
+      Math.min(seg(p, 0.2, 0.23), 1 - seg(p, 0.36, 0.4)),
+      seg(p, 0.41, 0.46),
+      seg(p, 0.78, 0.84),
+    ];
+    lines.forEach((l, i) => {
+      l.style.opacity = vis[i].toFixed(3);
+      const dy = (1 - vis[i]) * 18;
+      l.style.transform = l.classList.contains('top') || l.classList.contains('bottom')
+        ? `translate(-50%, ${dy}px)` : `translate(-50%, calc(-50% + ${dy}px))`;
+      l.style.visibility = vis[i] > 0.001 ? 'visible' : 'hidden';
+    });
+    threeSpans.forEach((s, i) => s.style.setProperty('--o', ease(seg(p, 0.21 + i * 0.035, 0.25 + i * 0.035)).toFixed(3)));
+    // cards
+    cards.forEach((c, k) => {
+      const f = geo.from[k], t = geo.slots[k];
+      const fly = ease(seg(p, 0.4 + k * 0.014, 0.55 + k * 0.014));
+      const bob = (1 - fly) * Math.sin(p * 14 + k * 1.7) * 8;
+      const x = lerp(f.x, t.x, fly), y = lerp(f.y, t.y, fly) + bob;
+      const r = lerp(f.r, 0, fly);
+      const lift = Math.sin(fly * Math.PI) * 0.06; // a little lift mid-flight
+      c.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg) scale(${1 + lift})`;
+      c.style.setProperty('--st', ease(seg(p, 0.03 + k * 0.016, 0.06 + k * 0.016)).toFixed(3));
+      c.style.setProperty('--flip', ease(seg(p, 0.52 + k * 0.018, 0.62 + k * 0.018)).toFixed(3));
+      c.style.zIndex = fly > 0 && fly < 1 ? 5 : 2;
+    });
+    // column labels: names first, then the module that fixed them
+    labels.forEach((l) => {
+      l.style.opacity = seg(p, 0.6, 0.66).toFixed(3);
+      l.style.setProperty('--mod', ease(seg(p, 0.68, 0.76)).toFixed(3));
+    });
+  }
+
+  function staticFrag() {
+    frag.classList.add('static');
+    cards.forEach((c) => {
+      const s = $('.stamp', c);
+      if (s && !$('.was', c)) {
+        const was = document.createElement('small');
+        was.className = 'was'; was.textContent = 'Before: ' + s.textContent;
+        $('.back', c).appendChild(was);
+      }
+    });
+  }
+
+  if (frag) {
+    if (hasGsap && !reduced && desktop()) {
+      ScrollTrigger.create({
+        trigger: frag, pin: pin, start: 'top top', end: '+=300%', scrub: 0.6,
+        onRefresh: (st) => { layoutFrag(); renderFrag(st.progress); },
+        onUpdate: (st) => renderFrag(st.progress),
+      });
+      layoutFrag(); renderFrag(0);
+    } else {
+      staticFrag();
+    }
+  }
+
+  /* =========================================================
+     AUDIENCE PANELS — click, keyboard and hover
+     ========================================================= */
+  const panels = $$('.panel');
+  const tabs = panels.map((p) => $('.panel-tab', p));
+  function openPanel(i, focus) {
+    panels.forEach((p, j) => {
+      const on = i === j;
+      p.classList.toggle('is-open', on);
+      tabs[j].setAttribute('aria-selected', on);
+      tabs[j].tabIndex = on ? 0 : -1;
+      $('.panel-body', p).toggleAttribute('inert', !on);
+    });
+    if (focus) tabs[i].focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => openPanel(i));
+    t.addEventListener('keydown', (e) => {
+      const n = tabs.length;
+      const map = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: n - 1 };
+      if (e.key in map) { e.preventDefault(); openPanel((map[e.key] + n) % n, true); }
+    });
   });
-  v.to('.stamp', { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, 3.7)
-    .fromTo('.vcard-glare', { x: '-60%' }, { x: '60%', duration: 0.8 }, 3.6)
-    .to({}, { duration: 0.6 });
-});
-mm.add('(max-width: 900px)', () => {
-  gsap.set('.vchecks i', { '--k': 1 });
-  gsap.set('.vbar span', { scaleX: 1 });
-  gsap.set('.stamp', { opacity: 1, scale: 1 });
-});
+  // the open panel's tab ignores pointer events, so keep it focusable via its body
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let hoverT;
+    panels.forEach((p, i) => {
+      p.addEventListener('mouseenter', () => { clearTimeout(hoverT); hoverT = setTimeout(() => { if (innerWidth > 760) openPanel(i); }, 140); });
+      p.addEventListener('mouseleave', () => clearTimeout(hoverT));
+    });
+  }
+  openPanel(0);
 
-/* ---------- Cursor + magnetic ---------- */
-if (fine && !reduced) {
-  const dot = $('.cursor-dot'), ring = $('.cursor-ring');
-  const dx = gsap.quickTo(dot, 'x', { duration: 0.1 }), dy = gsap.quickTo(dot, 'y', { duration: 0.1 });
-  const rx = gsap.quickTo(ring, 'x', { duration: 0.45, ease: 'power3' }), ry = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3' });
-  addEventListener('pointermove', (e) => { dx(e.clientX); dy(e.clientY); rx(e.clientX); ry(e.clientY); });
-  $$('a, button').forEach((el) => {
-    el.addEventListener('pointerenter', () => ring.classList.add('hover'));
-    el.addEventListener('pointerleave', () => ring.classList.remove('hover'));
-  });
-  $$('.magnetic').forEach((el) => {
-    const mx = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'power3' }), my = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'power3' });
-    el.addEventListener('pointermove', (e) => { const r = el.getBoundingClientRect(); mx((e.clientX - r.left - r.width / 2) * 0.3); my((e.clientY - r.top - r.height / 2) * 0.4); });
-    el.addEventListener('pointerleave', () => { mx(0); my(0); });
-  });
-} else {
-  $$('.cursor-dot, .cursor-ring').forEach((el) => (el.style.display = 'none'));
-}
+  /* =========================================================
+     NIGHT → MORNING
+     ========================================================= */
+  const day = $('.day');
+  const consoleEl = $('.console');
+  const opp = $('[data-opp]');
+  const logItems = $$('.cn-log li');
+  const counters = $$('[data-count-night]');
+  const clockEl = $('[data-clock]');
+  let oppNight = 0, oppMorning = 0;
 
-/* ---------- Go ---------- */
-addEventListener('load', () => ScrollTrigger.refresh());
-document.fonts?.ready.then(() => { sizeRot(); ScrollTrigger.refresh(); });
-runLoader();
+  function measureOpp() {
+    const cr = consoleEl.getBoundingClientRect();
+    const log = $('.cn-log').getBoundingClientRect();
+    const label = $('.cm-label').getBoundingClientRect();
+    oppNight = log.bottom - cr.top + 14;
+    oppMorning = label.bottom - cr.top + 8;
+  }
+  const fmtClock = (mins) => `${String(Math.floor(mins / 60) % 24).padStart(2, '0')}:${String(Math.floor(mins % 60)).padStart(2, '0')}`;
 
-/* ---------- Offer strip: rises in, the 12 counts up, days-left countdown ---------- */
-gsap.fromTo('.offer-strip', { y: 60, opacity: 0 },
-  { y: 0, opacity: 1, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: '.offer', start: 'top 88%', toggleActions: 'play none none reverse' } });
-gsap.fromTo('.os-copy > *', { y: 20, opacity: 0 },
-  { y: 0, opacity: 1, duration: 0.8, stagger: 0.08, delay: 0.15, ease: 'power3.out', scrollTrigger: { trigger: '.offer', start: 'top 88%', toggleActions: 'play none none reverse' } });
-const obNum = $('.ob-num'), obCount = { v: 1 };
-ScrollTrigger.create({
-  trigger: '.offer', start: 'top 80%',
-  onEnter: () => gsap.fromTo(obCount, { v: 1 }, { v: 12, duration: 1.4, ease: 'power3.out', onUpdate: () => (obNum.textContent = Math.round(obCount.v)) }),
-});
-// days left, and a bar showing how much of the offer window remains (window opened 22 September 2026, the launch)
-const OFFER_END = new Date(2026, 11, 31), OFFER_START = new Date(2026, 8, 22);
-const daysLeft = Math.max(0, Math.ceil((OFFER_END - new Date()) / 864e5));
-$('.oc-days').textContent = daysLeft;
-$('.os-bar').style.setProperty('--left', (clamp((OFFER_END - new Date()) / (OFFER_END - OFFER_START), 0, 1) * 100).toFixed(1) + '%');
+  function renderDay(p) {
+    // 0–.30 night work · .36–.72 night becomes morning · .74–.9 next actions
+    const m = ease(seg(p, 0.36, 0.72));
+    day.style.setProperty('--m', m.toFixed(3));
+    day.classList.toggle('is-morning', m > 0.5);
+    logItems.forEach((li, i) => li.style.setProperty('--li', seg(p, 0.02 + i * 0.055, 0.06 + i * 0.055).toFixed(3)));
+    counters.forEach((c) => { c.textContent = Math.round(+c.dataset.countNight * ease(seg(p, 0.0, 0.3))).toLocaleString('en-GB'); });
+    const found = seg(p, 0.12, 0.18);
+    opp.style.opacity = found.toFixed(3);
+    opp.style.setProperty('--oy', lerp(oppNight, oppMorning, m) + 'px');
+    opp.style.setProperty('--act', ease(seg(p, 0.74, 0.88)).toFixed(3));
+    // clock: 23:10 → 02:14 during night work, then on to 07:00
+    const night = lerp(23 * 60 + 10, 26 * 60 + 14, seg(p, 0, 0.18));
+    clockEl.textContent = fmtClock(p < 0.36 ? night : lerp(26 * 60 + 14, 31 * 60, m));
+  }
+
+  if (day) {
+    if (hasGsap && !reduced && desktop()) {
+      ScrollTrigger.create({
+        trigger: day, pin: '.day-pin', start: 'top top', end: '+=210%', scrub: 0.6,
+        onRefresh: (st) => { measureOpp(); renderDay(st.progress); },
+        onUpdate: (st) => renderDay(st.progress),
+      });
+    } else {
+      // static: show the morning result, the night log stays readable in the copy
+      const show = () => { measureOpp(); renderDay(1); };
+      show(); addEventListener('resize', show);
+    }
+  }
+
+  /* ---------- offer: days left ---------- */
+  const daysEl = $('[data-days]');
+  if (daysEl) {
+    const end = new Date(2026, 11, 31, 23, 59, 59);
+    const d = Math.max(0, Math.ceil((end - new Date()) / 864e5));
+    daysEl.textContent = d;
+  }
+
+  /* ---------- light reveals ---------- */
+  const rv = $$('.aud-head, .offer-card, .proof, .close-main, .settings-row');
+  if (!reduced && 'IntersectionObserver' in window) {
+    rv.forEach((el) => el.classList.add('rv'));
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+    rv.forEach((el) => io.observe(el));
+  }
+
+  // fonts change measurements; refresh pins once they are in
+  if (hasGsap && document.fonts) document.fonts.ready.then(() => ScrollTrigger.refresh());
+})();

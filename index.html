@@ -4,397 +4,370 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qura — The 24/7 Healthcare Marketplace & Growth CRM</title>
-  <meta name="description" content="Qura is the 24/7 healthcare marketplace and Growth CRM connecting verified clinicians, healthcare organisations, workforce suppliers and decision-makers in one ecosystem." />
+  <meta name="description" content="Qura is the B2B healthcare marketplace and AI-enabled Growth CRM connecting verified clinicians, healthcare organisations, recruitment agencies and suppliers in one platform." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <script type="importmap">
-    { "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    } }
-  </script>
 </head>
 <body>
-  <div id="loader" aria-hidden="true">
-    <div class="loader-inner">
-      <div class="loader-mark"><span class="orb"></span>Qura</div>
-      <div class="loader-bar"><span></span></div>
-      <div class="loader-count">0</div>
-    </div>
-  </div>
+  <a class="skip" href="#main">Skip to content</a>
 
-  <div class="bg-wash" aria-hidden="true"></div>
-  <div class="bg-grid" aria-hidden="true"></div>
-  <canvas id="webgl" aria-hidden="true"></canvas>
-  <div id="css3d" aria-hidden="true"></div>
-  <!-- scene 1: flag pings on the globe (positioned by js/scene.js) -->
-  <div class="globe-pings" aria-hidden="true">
-    <div class="gping" data-lat="51.5" data-lon="-0.12" data-hub><span class="gp-flag"><svg viewBox="0 0 60 30"><clipPath id="fgb"><path d="M0 0v30h60V0z"/></clipPath><g clip-path="url(#fgb)"><path d="M0 0v30h60V0z" fill="#012169"/><path d="M0 0l60 30m0-30L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30m0-30L0 30" stroke="#C8102E" stroke-width="2.5"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></g></svg></span><span class="gp-txt"><b>United Kingdom</b><small>Renal services tender · London</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="53.35" data-lon="-6.26"><span class="gp-flag"><svg viewBox="0 0 3 2"><path fill="#169B62" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#FF883E" d="M2 0h1v2H2z"/></svg></span><span class="gp-txt"><b>Ireland</b><small>Radiography supply · Dublin</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="6.52" data-lon="3.38"><span class="gp-flag"><svg viewBox="0 0 3 2"><path fill="#008751" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#008751" d="M2 0h1v2H2z"/></svg></span><span class="gp-txt"><b>Nigeria</b><small>Clinical partnership · Lagos</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="25.2" data-lon="55.27"><span class="gp-flag"><svg viewBox="0 0 12 6"><path fill="#00732F" d="M0 0h12v2H0z"/><path fill="#fff" d="M0 2h12v2H0z"/><path fill="#000" d="M0 4h12v2H0z"/><path fill="#FF0000" d="M0 0h3v6H0z"/></svg></span><span class="gp-txt"><b>UAE</b><small>Sonographer roles · Dubai</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="-33.87" data-lon="151.2"><span class="gp-flag"><svg viewBox="0 0 60 30"><path fill="#00247D" d="M0 0h60v30H0z"/><path d="M0 0l30 15m0-15L0 15" stroke="#fff" stroke-width="3"/><path d="M0 0l30 15m0-15L0 15" stroke="#CF142B" stroke-width="1.2"/><path d="M15 0v15M0 7.5h30" stroke="#fff" stroke-width="5"/><path d="M15 0v15M0 7.5h30" stroke="#CF142B" stroke-width="3"/><g fill="#fff"><circle cx="15" cy="23" r="3"/><circle cx="45" cy="7" r="1.6"/><circle cx="51" cy="14" r="1.6"/><circle cx="40" cy="16" r="1.6"/><circle cx="45" cy="25" r="1.8"/></g></svg></span><span class="gp-txt"><b>Australia</b><small>ICU nurses needed · Sydney</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="40.71" data-lon="-74.0"><span class="gp-flag"><svg viewBox="0 0 19 10"><path fill="#B22234" d="M0 0h19v10H0z"/><path stroke="#fff" stroke-width=".77" d="M0 1.15h19M0 2.69h19M0 4.23h19M0 5.77h19M0 7.31h19M0 8.85h19"/><path fill="#3C3B6E" d="M0 0h7.6v5.4H0z"/></svg></span><span class="gp-txt"><b>United States</b><small>Locum physicians · New York</small></span><i class="gp-new">New</i></div>
-    <div class="gping" data-lat="50.85" data-lon="4.35"><span class="gp-flag"><svg viewBox="0 0 30 20"><path fill="#003399" d="M0 0h30v20H0z"/><g fill="#FFCC00"><circle cx="21.00" cy="10.00" r="0.9"/><circle cx="20.20" cy="13.00" r="0.9"/><circle cx="18.00" cy="15.20" r="0.9"/><circle cx="15.00" cy="16.00" r="0.9"/><circle cx="12.00" cy="15.20" r="0.9"/><circle cx="9.80" cy="13.00" r="0.9"/><circle cx="9.00" cy="10.00" r="0.9"/><circle cx="9.80" cy="7.00" r="0.9"/><circle cx="12.00" cy="4.80" r="0.9"/><circle cx="15.00" cy="4.00" r="0.9"/><circle cx="18.00" cy="4.80" r="0.9"/><circle cx="20.20" cy="7.00" r="0.9"/></g></svg></span><span class="gp-txt"><b>European Union</b><small>Medical devices tender · Brussels</small></span><i class="gp-new">New</i></div>
-  </div>
-  <div class="cursor-dot" aria-hidden="true"></div>
-  <div class="cursor-ring" aria-hidden="true"></div>
-
-  <!-- 3D elements: placed in the scene by js/scene.js -->
-  <div class="panel-src" aria-hidden="true">
-    <!-- scene 2 cards: the front shows the problem, the back (revealed by a 3D flip) shows Qura's fix.
-         data-col: 0 clinicians · 1 providers · 2 suppliers; data-row: slot on the board -->
-    <div class="gchip" data-chip data-col="1" data-row="0">
-      <div class="gc-face gc-front"><span class="chip c-teal">Vacancy</span><b>Band 6 Sonographer</b><small>Leeds · NHS Trust</small><span class="gc-stamp">3 weeks, no fit</span></div>
-      <div class="gc-face gc-back"><span class="chip c-teal">Vacancy</span><b>Band 6 Sonographer</b><small>4 verified matches today</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="2" data-row="0">
-      <div class="gc-face gc-front"><span class="chip c-sky">Tender</span><b>Renal services</b><small>London · 29 days left</small><span class="gc-stamp">Who saw it?</span></div>
-      <div class="gc-face gc-back"><span class="chip c-sky">Tender</span><b>Renal services</b><small>Matched to 3 suppliers</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="0" data-row="0" data-key="nurse">
-      <div class="gc-face gc-front"><span class="chip c-gray">CV</span><b>Registered Nurse</b><small>Unverified · PDF</small><span class="gc-stamp">Unverified</span></div>
-      <div class="gc-face gc-back"><span class="chip c-teal">Profile</span><b>Registered Nurse</b><small>NMC registration verified</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="0" data-row="1">
-      <div class="gc-face gc-front"><span class="chip c-amber">Compliance</span><b>DBS · Right to work</b><small>2 documents missing</small><span class="gc-stamp">Incomplete</span></div>
-      <div class="gc-face gc-back"><span class="chip c-teal">Compliance</span><b>DBS · Right to work</b><small>All documents checked</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="2" data-row="1">
-      <div class="gc-face gc-front"><span class="chip c-sky">Contact</span><b>Head of Workforce</b><small>ICB · email unknown</small><span class="gc-stamp">Email unknown</span></div>
-      <div class="gc-face gc-back"><span class="chip c-sky">Contact</span><b>Head of Workforce</b><small>Verified decision-maker</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="1" data-row="2">
-      <div class="gc-face gc-front"><span class="chip c-teal">Contract</span><b>Smoking cessation</b><small>Wolverhampton</small><span class="gc-stamp">Lost in an inbox</span></div>
-      <div class="gc-face gc-back"><span class="chip c-teal">Contract</span><b>Smoking cessation</b><small>Live on the marketplace</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="1" data-row="1">
-      <div class="gc-face gc-front"><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>Special school</small><span class="gc-stamp">No applicants</span></div>
-      <div class="gc-face gc-back"><span class="chip c-amber">SEND</span><b>Teaching Assistant</b><small>6 verified candidates nearby</small><i class="gc-ok"></i></div>
-    </div>
-    <div class="gchip" data-chip data-col="2" data-row="2">
-      <div class="gc-face gc-front"><span class="chip c-gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small><span class="gc-stamp">Out of date</span></div>
-      <div class="gc-face gc-back"><span class="chip c-sky">Growth CRM</span><b>Client list v7 FINAL</b><small>Live, updated today</small><i class="gc-ok"></i></div>
-    </div>
-    <!-- scene 2 board column labels -->
-    <div class="colbl" data-collabel="0"><small>Clinicians</small><b>Verified profiles</b></div>
-    <div class="colbl" data-collabel="1"><small>Providers</small><b>Live marketplace</b></div>
-    <div class="colbl" data-collabel="2"><small>Suppliers</small><b>Growth CRM</b></div>
-
-    <!-- scene 4: overnight handover sheet, floating (night) -->
-    <div class="sp sp-sheet" id="spNight" data-scene="4">
-      <div class="sh-clip"></div>
-      <div class="sh-head">
-        <div><small>QURA · NIGHT SHIFT</small><h4>Overnight handover</h4></div>
-        <div class="sh-meta"><span>Wed 5 Nov</span><span>22:00 – 07:00</span></div>
-      </div>
-      <div class="sh-sub"><span>Patch: <b>UK &amp; Ireland market</b></span><span>Prepared for: <b>you</b></span></div>
-      <ol class="sh-log">
-        <li><time>23:10</time><p>Checked <b>1,240</b> NHS &amp; private listings for changes</p><i class="tick"></i></li>
-        <li><time>01:40</time><p><b>4 new tenders</b> read, each summarised in plain English</p><i class="tick"></i></li>
-        <li class="flag"><time>02:14</time><p><b>Sonography workforce requirement</b>, Leeds. 3 of your suppliers fit</p><span class="stamp-ink">Review first</span></li>
-        <li><time>03:30</time><p>Named decision-makers re-checked at <b>12 trusts</b></p><i class="tick"></i></li>
-        <li><time>05:05</time><p><b>37</b> duplicate vacancies merged</p><i class="tick"></i></li>
-      </ol>
-      <div class="sh-foot"><span>Qura flags. <b>You decide.</b></span><span class="sign">Handed over 07:00</span></div>
-    </div>
-    <!-- scene 5: the morning digest email, floating -->
-    <div class="sp sp-mail" id="spMorning" data-scene="5">
-      <div class="ml-bar"><i></i><i></i><i></i><span>Inbox</span><em>1 new</em></div>
-      <div class="ml-head">
-        <span class="ml-av"><span class="orb"></span></span>
-        <div><b>Qura Morning Digest</b><small>to you · 07:00</small></div>
-        <span class="ml-new">New</span>
-      </div>
-      <h4 class="ml-subj">14 new SEND &amp; care roles since yesterday</h4>
-      <p class="ml-hi">Good morning. Three of these match your profile, so they're at the top.</p>
-      <ul class="ml-roles">
-        <li class="fit"><span class="ml-ic amber">SS</span><div><b>Teaching Assistant</b><small>Oakfield Special School · Manchester · 2 mi</small></div><em>Matches you</em></li>
-        <li class="fit"><span class="ml-ic teal">RC</span><div><b>Support Worker</b><small>Residential care · Salford · 4 mi</small></div><em>Matches you</em></li>
-        <li class="fit"><span class="ml-ic sky">SL</span><div><b>Speech &amp; Language Therapist</b><small>SEND school · Stockport · 6 mi</small></div><em>Matches you</em></li>
-        <li><span class="ml-ic gray">CH</span><div><b>Deputy Manager</b><small>Children's home · Bolton · 9 mi</small></div><em>New</em></li>
-      </ul>
-      <div class="ml-foot"><span class="ml-btn">See all 14 roles</span><small>Delivered before your first coffee</small></div>
-    </div>
-  </div>
-
+  <!-- ================= HEADER ================= -->
   <header class="site-header">
-    <div class="offer-bar">
-      <span class="pulse"></span>
-      <p><strong>Founding Partner offer:</strong> join Qura by 31 December 2026 and get 12 months of our top plan, free.</p>
-      <a href="#offer">See the offer →</a>
-      <button class="offer-close" aria-label="Dismiss offer">×</button>
+    <div class="announce">
+      <p><span class="pulse"></span><b>Founding Partner offer</b> · Join Qura by 31 December 2026 and get 12 months of our top plan, free.</p>
+      <a href="#offer">See the offer <span aria-hidden="true">→</span></a>
     </div>
-    <nav class="nav">
+    <nav class="nav frame" aria-label="Main">
       <a href="#" class="logo" aria-label="Qura home"><span class="orb"></span><span class="logo-text">Qura<small>Healthcare Growth CRM</small></span></a>
       <ul class="nav-links">
-        <li><a href="#ecosystem">Platform</a></li>
-        <li><a href="#verified">For clinicians</a></li>
-        <li><a href="#connected">For organisations</a></li>
-        <li><a href="#morning">SEND &amp; Care</a></li>
+        <li><a href="#platform">Platform</a></li>
+        <li><a href="#audiences">Who it's for</a></li>
+        <li><a href="#overnight">24/7 intelligence</a></li>
         <li><a href="#offer">Pricing</a></li>
         <li><a href="story.html">Our story</a></li>
       </ul>
       <div class="nav-actions">
         <a href="#" class="link-quiet">Log in</a>
-        <a href="#offer" class="btn btn-primary magnetic"><span>Book a demo</span></a>
-        <button class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+        <a href="#demo" class="btn btn-line btn-sm">Book a demo</a>
+        <a href="#join" class="btn btn-ink btn-sm">Join Qura</a>
       </div>
     </nav>
   </header>
 
-  <main>
-    <!-- 0 · HERO — the Qura core -->
-    <section id="hero" class="hero">
-      <div class="hero-orbit" aria-hidden="true">
-        <div class="oc"><div class="oc-in"><span class="oc-ic teal">＋</span><div><b>Band 6 Sonographer</b><small>Leeds · NHS Trust · posted 4m ago</small></div></div></div>
-        <div class="oc"><div class="oc-in"><span class="oc-ic sky">▤</span><div><b>Renal services tender</b><small>London · closes in 29 days</small></div></div></div>
-        <div class="oc"><div class="oc-in"><span class="oc-ic teal">✓</span><div><b>Registered Nurse</b><small>NMC registration verified</small></div></div></div>
-        <div class="oc"><div class="oc-in"><span class="oc-ic navy">◎</span><div><b>Head of Workforce</b><small>ICB · named decision-maker</small></div></div></div>
-        <div class="oc"><div class="oc-in"><span class="oc-ic amber">✦</span><div><b>SEND Teaching Assistant</b><small>Special school · Manchester</small></div></div></div>
-        <div class="oc"><div class="oc-in"><span class="oc-ic sky">%</span><div><b>92% match</b><small>3 suppliers fit this requirement</small></div></div></div>
-      </div>
-
-      <div class="container hero-grid">
+  <main id="main">
+    <!-- ================= 1 · HERO ================= -->
+    <section class="hero" id="top">
+      <div class="frame hero-frame">
         <div class="hero-copy">
-          <p class="hero-live"><span class="pulse"></span><b class="live-n">66</b> opportunities live right now</p>
-          <h1 class="hero-title">
-            <span class="ln"><span class="li">Every <span class="rotator" aria-live="polite"><span class="rw on">clinician.</span><span class="rw">tender.</span><span class="rw">vacancy.</span><span class="rw">supplier.</span><span class="rw">buyer.</span></span></span></span>
-            <span class="ln"><span class="li"><em>Connected.</em></span></span>
-          </h1>
-          <p class="lead hero-lead">Qura is the 24/7 healthcare marketplace and Growth CRM that brings clinicians, providers and suppliers into one verified ecosystem, across the NHS, private and international markets.</p>
+          <p class="kicker"><span class="kicker-dot"></span>B2B healthcare marketplace &amp; Growth CRM</p>
+          <h1 class="hero-h"><span class="hl1">Every <span class="rot" aria-hidden="true"><span class="rw on">clinician.</span><span class="rw">tender.</span><span class="rw">vacancy.</span><span class="rw">supplier.</span><span class="rw">buyer.</span></span></span><span class="sr-only">Every clinician, tender, vacancy, supplier and buyer.</span><span class="hl2"><em>Connected.</em></span></h1>
+          <p class="hero-lead">Qura brings verified clinicians, healthcare organisations, recruitment agencies and suppliers onto one live platform. Find opportunities, the right people and the partners behind every decision, 24 hours a day.</p>
           <div class="hero-ctas">
-            <a href="#verified" class="btn btn-primary btn-lg magnetic"><span>Create your free profile</span></a>
-            <a href="#connected" class="btn btn-ghost btn-lg magnetic"><span>For organisations →</span></a>
+            <a href="#join" class="btn btn-ink btn-lg">Join Qura free</a>
+            <a href="#demo" class="btn btn-line btn-lg">Book a demo</a>
           </div>
-          <ul class="hero-trust">
-            <li><i>✓</i>Free for clinicians, always</li>
-            <li><i>✓</i>Verified by the Qura team</li>
-            <li><i>✓</i>UK and international markets</li>
-          </ul>
+          <p class="hero-meta"><span>Free for clinicians, always</span><span>Verified by the Qura team</span><span>NHS, private &amp; international</span></p>
         </div>
       </div>
 
-      <div class="hero-band">
-        <div class="hb-track"><span>NHS Trusts</span><i>•</i><span>Integrated Care Boards</span><i>•</i><span>Private clinics</span><i>•</i><span>GP practices</span><i>•</i><span>Care providers</span><i>•</i><span>Special schools</span><i>•</i><span>Staffing agencies</span><i>•</i><span>Medical suppliers</span><i>•</i></div>
-      </div>
-    </section>
-
-    <!-- Founding Partner offer strip (not a numbered scene) -->
-    <section id="offer" class="offer">
-      <div class="container">
-        <div class="offer-strip">
-          <div class="os-big" aria-hidden="true"><span class="ob-num">12</span><small>Months free</small></div>
-          <div class="os-copy">
-            <p class="os-eyebrow">Founding Partner offer</p>
-            <h2 class="os-h">A year to grow. <em>On us.</em></h2>
-            <p class="os-line">Join by 31 December 2026. Get 12 months of our top plan, <em>free.</em></p>
-            <p class="os-note">Clinicians join free, always.</p>
-          </div>
-          <div class="os-cta">
-            <a href="#" class="btn btn-primary btn-lg magnetic"><span>Become a Founding Partner</span></a>
-            <a href="#" class="os-link">Book a demo</a>
-            <div class="os-clock"><span class="os-bar"><i></i></span><small><b class="oc-days">–</b> days left</small></div>
-          </div>
-        </div>
+      <!-- platform recording: separate component from the animated records -->
+      <div class="frame settings-row" aria-label="Who uses Qura">
+        <span class="sr-label">Built for</span>
+        <ul>
+          <li>NHS trusts</li><li>Integrated care boards</li><li>Private clinics</li><li>GP practices</li><li>Care providers</li><li>Special schools</li><li>Recruitment agencies</li><li>Medical suppliers</li>
+        </ul>
       </div>
     </section>
 
-    <!-- 1 · ECOSYSTEM — network sphere -->
-    <section id="ecosystem" class="scene split" data-stage>
-      <div class="container">
-        <div class="col-text">
-          <p class="eyebrow reveal"><span></span>The Qura ecosystem</p>
-          <h2 class="h2" data-split>Three communities. <em>One connected</em> healthcare sector.</h2>
-          <p class="body reveal">Qura brings opportunities, verified professionals and market intelligence into one platform, so the people who keep healthcare running can finally find each other.</p>
-          <div class="stats four reveal">
-            <div class="stat"><b data-count="32" data-suffix="+">0</b><span>Combined years in healthcare</span></div>
-            <div class="stat"><b data-count="3800" data-suffix="+">0</b><span>Named decision-makers</span></div>
-            <div class="stat"><b data-count="5">0</b><span>Markets and counting</span></div>
-            <div class="stat"><b>24/7</b><span>Live marketplace</span></div>
-          </div>
-        </div>
+    <!-- ================= 2 · AUDIENCE PANELS ================= -->
+    <section class="aud" id="audiences" aria-labelledby="aud-h">
+      <div class="frame aud-head">
+        <p class="kicker"><span class="kicker-dot"></span>Who it's for</p>
+        <h2 class="h2" id="aud-h">Built for everyone who<br /><em>keeps healthcare running.</em></h2>
+        <p class="aud-sub">Choose your path to see what Qura looks like for you.</p>
       </div>
-    </section>
 
-    <!-- 2 · FRAGMENTED -->
-    <section id="fragmented" class="scene scene-frag" data-stage>
-      <div class="frag-copy">
-        <!-- act 1: the problem -->
-        <div class="frag-line" data-i="0"><p class="eyebrow center"><span></span>The problem</p><h2 class="h1">Healthcare is <em>fragmented.</em></h2></div>
-        <div class="frag-line" data-i="1"><h2 class="h2 frag-three"><span>Clinicians go <em>unseen.</em></span><span>Providers post roles <em>into the void.</em></span><span>Suppliers chase <em>stale contacts.</em></span></h2></div>
-        <!-- act 2: the fix -->
-        <div class="frag-line top" data-i="2"><p class="eyebrow center"><span></span>The fix</p><h2 class="h2">Qura puts it <em>back together.</em></h2></div>
-        <!-- act 3: how -->
-        <div class="frag-line bottom" data-i="3"><p class="frag-tag">One verified profile. One live marketplace. <b>One CRM that knows who decides.</b></p></div>
-      </div>
-    </section>
-
-    <!-- 3 · VERIFIED -->
-    <section id="verified" class="scene verify" data-stage>
-      <div class="container verify-grid">
-        <div class="col-text">
-          <p class="eyebrow"><span></span>For clinicians</p>
-          <h2 class="h2">Get verified once.<br/><em>Be seen everywhere.</em></h2>
-          <ol class="vsteps">
-            <li class="vstep"><b>You register</b><span>Your profession, registration and experience, once.</span></li>
-            <li class="vstep"><b>We check it</b><span>The Qura team checks your registration before you are shown to anyone.</span></li>
-            <li class="vstep"><b>You stay in control</b><span>Organisations see documents only after a verified introduction, and every view is logged.</span></li>
-            <li class="vstep"><b>You hear first</b><span>Matching roles reach you the moment they are posted.</span></li>
-          </ol>
-          <a href="#" class="btn btn-primary btn-lg magnetic vcta"><span>Create your free profile</span></a>
-        </div>
-        <div class="vcard-wrap">
-          <div class="vcard">
-            <div class="vcard-glare"></div>
-            <div class="vcard-top"><span class="orb"></span><small>QURA · VERIFIED PROFILE</small></div>
-            <div class="vcard-photo">
-              <img src="assets/clinician-sonographer.webp" alt="Sonographer at an ultrasound station" width="721" height="560" />
-              <span class="vphoto-tag"><i>✓</i>HCPC registration checked</span>
-            </div>
-            <div class="vcard-id">
-              <div><b>Amara O.</b><span>Senior Sonographer</span><small>Leeds · Open to UK &amp; international</small></div>
-            </div>
-            <div class="vbar"><span></span></div>
-            <ul class="vchecks">
-              <li><i></i>Professional registration</li>
-              <li><i></i>Identity &amp; right to work</li>
-              <li><i></i>Compliance documents</li>
-              <li><i></i>Role alerts switched on</li>
-            </ul>
-            <div class="stamp">Verified</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4 · NEVER SLEEPS (night) -->
-    <section id="night" class="scene split right dark" data-stage>
-      <div class="container">
-        <div class="col-text">
-          <p class="eyebrow reveal"><span></span>AI-powered intelligence</p>
-          <h2 class="h2" data-split>Working <em>while you sleep.</em></h2>
-          <p class="body reveal">Opportunity analysis, relevant matching and market research, running through the night. Qura advises; people decide.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5 · EVERY MORNING (sunrise) -->
-    <section id="morning" class="scene split" data-stage>
-      <div class="container">
-        <div class="col-text">
-          <p class="eyebrow reveal"><span></span>SEND &amp; Care intelligence</p>
-          <h2 class="h2" data-split>New roles in your inbox. <em>Every morning.</em></h2>
-          <p class="body reveal">Sector intelligence for specialist education and care, delivered before your first coffee.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6 · SEE THE MARKET MOVING (film + live board) -->
-    <section id="film" class="scene film" data-stage>
-      <div class="container">
-        <div class="film-head">
-          <p class="eyebrow center"><span></span>See it in action</p>
-          <h2 class="h2 center" data-split>See the market <em>moving.</em></h2>
-          <p class="body center film-sub">98 seconds on what Qura does for every lens, now with SEND and Care Intelligence.</p>
-        </div>
-        <div class="film-grid">
-          <div class="film-frame">
-            <video id="filmVideo" preload="metadata" playsinline>
-              <source src="assets/qura-overview.mp4" type="video/mp4" />
-            </video>
-            <div class="film-poster">
-              <div class="film-glow"></div>
-              <h3 class="film-title">One platform. <em>Every lens.</em></h3>
-              <div class="lens">
-                <span><i>▣</i>Hospitals &amp; providers</span>
-                <span><i>◈</i>Workforce suppliers</span>
-                <span><i>✚</i>Medical suppliers</span>
-                <span><i>♥</i>GP &amp; care</span>
-                <span><i>●</i>Clinicians</span>
+      <div class="frame">
+        <div class="panels" role="tablist" aria-label="Choose your audience">
+          <!-- clinicians -->
+          <div class="panel is-open" data-panel="0">
+            <button class="panel-tab" role="tab" id="pt-0" aria-selected="true" aria-controls="pp-0">
+              <span class="pt-n">01</span><span class="pt-name">Clinicians</span><span class="pt-plus" aria-hidden="true"></span>
+            </button>
+            <img class="panel-img" src="https://www.qurahealth.org/assets/home-nurse-6ClCUWOr.webp" alt="" style="--fx:62%" loading="lazy" />
+            <div class="panel-body" role="tabpanel" id="pp-0" aria-labelledby="pt-0">
+              <div class="pb-copy">
+                <p class="pb-k">Clinicians</p>
+                <h3>Be seen for your expertise.</h3>
+                <p>Get verified once, hear about matching roles the moment they are posted, and be found by organisations across the UK and abroad.</p>
+                <a href="#join" class="btn btn-light">Create your free profile</a>
               </div>
-              <button class="film-play" aria-label="Play the Qura overview video"><span></span></button>
-              <p class="film-len">Watch the overview · 1:38</p>
-              <p class="film-note" role="status"></p>
+              <div class="pv pv-profile">
+                <div class="pv-head"><span class="pv-av">AO</span><div><b>Amara O.</b><small>Senior Sonographer · Leeds</small></div><span class="pv-badge">Verified</span></div>
+                <ul class="pv-checks"><li>HCPC registration checked</li><li>Right to work</li><li>Open to UK &amp; international</li></ul>
+                <div class="pv-alert"><span class="dot"></span><div><b>New role matches you</b><small>Band 6 Sonographer · Leeds · 2m ago</small></div></div>
+              </div>
             </div>
           </div>
-          <aside class="live-board">
-            <div class="live-head"><span class="live-dot"></span><b>Live marketplace</b><span class="live-count"><em class="live-n">65</em> live now</span></div>
-            <div class="live-tabs"><span class="on">Global</span><span>UK &amp; Ireland</span><span>International</span></div>
-            <ul class="live-list" id="liveList"></ul>
-            <p class="live-foot"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Full titles, buyers and named contacts unlock when you sign in.</p>
-            <a href="#offer" class="btn live-cta magnetic"><span>Sign in to see every live tender →</span></a>
-          </aside>
+          <!-- organisations -->
+          <div class="panel" data-panel="1">
+            <button class="panel-tab" role="tab" id="pt-1" aria-selected="false" aria-controls="pp-1">
+              <span class="pt-n">02</span><span class="pt-name">Healthcare organisations</span><span class="pt-plus" aria-hidden="true"></span>
+            </button>
+            <img class="panel-img" src="https://www.qurahealth.org/assets/home-managers-DcAk9z7N.webp" alt="" style="--fx:55%" loading="lazy" />
+            <div class="panel-body" role="tabpanel" id="pp-1" aria-labelledby="pt-1">
+              <div class="pb-copy">
+                <p class="pb-k">Healthcare organisations</p>
+                <h3>Find the people and partners you need.</h3>
+                <p>Post vacancies and workforce requirements, reach verified clinicians and compare suppliers, for NHS, private and care settings.</p>
+                <a href="#demo" class="btn btn-light">Book a demo</a>
+              </div>
+              <div class="pv pv-list">
+                <div class="pv-row-h"><b>Band 6 Sonographer</b><small>Leeds · posted today</small></div>
+                <ul>
+                  <li><span class="pv-av sm">AO</span><div><b>Amara O.</b><small>Senior Sonographer · 2 mi</small></div><em>Verified</em></li>
+                  <li><span class="pv-av sm">JM</span><div><b>J. Mensah</b><small>Sonographer · 5 mi</small></div><em>Verified</em></li>
+                  <li><span class="pv-av sm sky">NS</span><div><b>Northline Staffing</b><small>Supplier · 3 sonographers</small></div><em class="sky">Supplier</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <!-- suppliers & agencies -->
+          <div class="panel" data-panel="2">
+            <button class="panel-tab" role="tab" id="pt-2" aria-selected="false" aria-controls="pp-2">
+              <span class="pt-n">03</span><span class="pt-name">Suppliers &amp; agencies</span><span class="pt-plus" aria-hidden="true"></span>
+            </button>
+            <img class="panel-img" src="https://www.qurahealth.org/assets/home-coordinator-BVc3NG1k.webp" alt="" style="--fx:30%" loading="lazy" />
+            <div class="panel-body" role="tabpanel" id="pp-2" aria-labelledby="pt-2">
+              <div class="pb-copy">
+                <p class="pb-k">Suppliers &amp; agencies</p>
+                <h3>Find opportunities. Build relationships.</h3>
+                <p>See live tenders and workforce demand, reach named decision-makers and manage every account in Growth CRM.</p>
+                <a href="#demo" class="btn btn-light">See live opportunities</a>
+              </div>
+              <div class="pv pv-tender">
+                <div class="pv-row-h"><span class="tag sky">Tender</span><b>Renal services</b><small>London · closes in 27 days</small></div>
+                <div class="pv-dm"><span class="pv-av sm navy">HW</span><div><b>Head of Workforce</b><small>Named decision-maker · re-checked</small></div></div>
+                <div class="pv-stage"><span class="on">Identified</span><span class="on">Contacted</span><span>Proposal</span><span>Won</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 7 · CONNECTED -->
-    <section id="connected" class="scene connected" data-stage>
-      <div class="container">
-        <div class="conn-head">
-          <p class="eyebrow center reveal"><span></span>The Qura ecosystem</p>
-          <h2 class="h2 center" data-split>One platform. <em>Three ways forward.</em></h2>
-          <p class="body center reveal">Three connected communities. A stronger healthcare sector.</p>
+    <!-- ================= 3 · PLATFORM FILM ================= -->
+    <section class="film" id="film" aria-labelledby="film-h">
+      <div class="frame film-head">
+        <p class="kicker"><span class="kicker-dot"></span>Inside the platform</p>
+        <h2 class="h2" id="film-h">See the market <em>moving.</em></h2>
+        <p class="film-sub">98 seconds on what Qura does for every lens, now with SEND and Care Intelligence.</p>
+      </div>
+      <div class="frame showcase-frame">
+        <figure class="showcase" id="showcase">
+          <div class="win-bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="win-title"><span class="orb sm"></span>Qura · Platform overview</span>
+            <span class="win-tag">Film · 1:38</span>
+          </div>
+          <div class="player" data-player>
+            <video class="player-video" preload="metadata" playsinline
+              src="https://www.qurahealth.org/qura-every-lens-98s.mp4#t=6" aria-label="Qura platform overview film, 98 seconds"></video>
+            <div class="player-poster">
+              <button class="pp-play" data-play aria-label="Play the Qura platform overview, 1 minute 38 seconds"><span class="tri"></span><b>Watch the overview</b><small>1:38 · sound on</small></button>
+            </div>
+            <div class="player-ctrl" aria-label="Video controls">
+              <button class="pc-btn" data-toggle aria-label="Pause"><span class="ic-pause"></span></button>
+              <div class="pc-track" data-track><span data-fill></span></div>
+              <span class="pc-time" data-time>0:00 / 1:38</span>
+              <button class="pc-btn" data-mute aria-label="Mute"><span class="ic-sound"></span></button>
+            </div>
+            <p class="player-msg" role="status" data-msg></p>
+          </div>
+        </figure>
+        <p class="showcase-cap">Real footage from the Qura platform. Captions on screen. Playback starts only when you choose.</p>
+      </div>
+
+    </section>
+
+    <!-- ================= 4 · PROBLEM → FIX → HOW (scattered records become a connected board) ================= -->
+    <section class="frag" id="platform" aria-labelledby="frag-h">
+      <div class="frag-pin">
+        <div class="frag-grid" aria-hidden="true"></div>
+
+        <!-- centred copy: three acts -->
+        <div class="frag-copy">
+          <div class="fl" data-i="0"><p class="kicker"><span class="kicker-dot red"></span>The problem</p><h2 class="frag-h1" id="frag-h">Healthcare is <em>fragmented.</em></h2></div>
+          <div class="fl" data-i="1"><h2 class="frag-three"><span>Clinicians go <em>unseen.</em></span><span>Providers post roles <em>into the void.</em></span><span>Suppliers chase <em>stale contacts.</em></span></h2></div>
+          <div class="fl top" data-i="2"><p class="kicker"><span class="kicker-dot"></span>The fix</p><h2 class="h2">Qura puts it <em>back together.</em></h2></div>
+          <div class="fl bottom" data-i="3"><p class="frag-tag">One verified profile. One live marketplace. <b>One CRM that knows who decides.</b></p></div>
         </div>
-        <div class="ways">
-          <a class="way featured" href="#verified">
-            <div class="way-photo"><img src="assets/community-professionals.webp" alt="Healthcare professional checking roles on a tablet" width="427" height="261" loading="lazy" /></div>
-            <span class="way-ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c1-3.5 3.3-5 6-5s5 1.5 6 5M15 15c2.5 0 4.5 1.2 5.5 4"/></svg></span>
-            <h3>Healthcare professionals</h3><p>Create your free profile, get verified and hear about matching roles.</p><span class="way-link">Create your free profile <i>→</i></span>
-          </a>
-          <a class="way" href="#film">
-            <div class="way-photo"><img src="assets/community-providers.webp" alt="Healthcare provider team in a meeting" width="427" height="261" loading="lazy" /></div>
-            <span class="way-ic"><svg viewBox="0 0 24 24"><path d="M4 21V8h16v13M9 21v-5h6v5M12 10v4M10 12h4M8 8V4h8v4"/></svg></span>
-            <h3>Healthcare providers</h3><p>Post roles and find verified clinicians across every setting.</p><span class="way-link">For healthcare providers <i>→</i></span>
-          </a>
-          <a class="way" href="#film">
-            <div class="way-photo"><img src="assets/community-suppliers.webp" alt="Workforce supplier on a call at her desk" width="427" height="261" loading="lazy" /></div>
-            <span class="way-ic"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M8 7v13M16 7v13"/></svg></span>
-            <h3>Workforce suppliers</h3><p>Live demand, named decision-makers and a verified supplier profile.</p><span class="way-link">For workforce suppliers <i>→</i></span>
-          </a>
+
+        <!-- board column labels: the module that fixed each column -->
+        <div class="colbl" data-col="0"><small>Clinicians</small><b><i class="mod-ic teal">✓</i>Verified profiles</b></div>
+        <div class="colbl" data-col="1"><small>Providers</small><b><i class="mod-ic sky">◉</i>Live marketplace</b></div>
+        <div class="colbl" data-col="2"><small>Suppliers</small><b><i class="mod-ic navy">◎</i>Growth CRM</b></div>
+
+        <!-- the records: front = problem (red ink stamp), back = Qura's fix. data-col/data-row: slot on the board -->
+        <div class="fcards">
+          <div class="fc" data-col="0" data-row="0"><div class="fc-in">
+            <div class="fc-face front"><span class="tag gray">CV</span><b>Registered Nurse</b><small>Unverified · PDF</small><span class="stamp">Unverified</span></div>
+            <div class="fc-face back"><span class="tag teal">Profile</span><b>Registered Nurse</b><small>NMC registration verified</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="0" data-row="1"><div class="fc-in">
+            <div class="fc-face front"><span class="tag amber">Compliance</span><b>DBS · Right to work</b><small>2 documents missing</small><span class="stamp">Incomplete</span></div>
+            <div class="fc-face back"><span class="tag teal">Compliance</span><b>DBS · Right to work</b><small>All documents checked</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="1" data-row="0"><div class="fc-in">
+            <div class="fc-face front"><span class="tag teal">Vacancy</span><b>Band 6 Sonographer</b><small>Leeds · NHS Trust</small><span class="stamp">3 weeks, no fit</span></div>
+            <div class="fc-face back"><span class="tag teal">Vacancy</span><b>Band 6 Sonographer</b><small>4 verified matches today</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="1" data-row="1"><div class="fc-in">
+            <div class="fc-face front"><span class="tag amber">SEND</span><b>Teaching Assistant</b><small>Special school</small><span class="stamp">No applicants</span></div>
+            <div class="fc-face back"><span class="tag amber">SEND</span><b>Teaching Assistant</b><small>6 verified candidates nearby</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="1" data-row="2"><div class="fc-in">
+            <div class="fc-face front"><span class="tag teal">Contract</span><b>Smoking cessation</b><small>Wolverhampton</small><span class="stamp">Lost in an inbox</span></div>
+            <div class="fc-face back"><span class="tag teal">Contract</span><b>Smoking cessation</b><small>Live on the marketplace</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="2" data-row="0"><div class="fc-in">
+            <div class="fc-face front"><span class="tag sky">Tender</span><b>Renal services</b><small>London · 29 days left</small><span class="stamp">Who saw it?</span></div>
+            <div class="fc-face back"><span class="tag sky">Tender</span><b>Renal services</b><small>Matched to 3 suppliers</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="2" data-row="1"><div class="fc-in">
+            <div class="fc-face front"><span class="tag sky">Contact</span><b>Head of Workforce</b><small>ICB · email unknown</small><span class="stamp">Email unknown</span></div>
+            <div class="fc-face back"><span class="tag sky">Contact</span><b>Head of Workforce</b><small>Verified decision-maker</small><i class="ok"></i></div>
+          </div></div>
+          <div class="fc" data-col="2" data-row="2"><div class="fc-in">
+            <div class="fc-face front"><span class="tag gray">Spreadsheet</span><b>Client list v7 FINAL</b><small>Last updated 2023</small><span class="stamp">Out of date</span></div>
+            <div class="fc-face back"><span class="tag navy">Growth CRM</span><b>Client list v7 FINAL</b><small>Live, updated today</small><i class="ok"></i></div>
+          </div></div>
+        </div>
+
+        <p class="frag-note">Records shown are illustrative.</p>
+      </div>
+    </section>
+
+
+    <!-- ================= 5 · NIGHT → MORNING ================= -->
+    <section class="day" id="overnight" aria-labelledby="night-h">
+      <div class="day-pin">
+        <div class="sky-layer" aria-hidden="true"><span class="stars"></span><span class="sun"></span></div>
+        <div class="frame day-frame">
+          <div class="day-copy">
+            <div class="dc dc-night">
+              <p class="kicker light"><span class="kicker-dot"></span>Night · 02:14</p>
+              <h2 class="h2" id="night-h">Working <em>while you sleep.</em></h2>
+              <p class="day-lead">Overnight, Qura reads new listings, summarises tenders, re-checks decision-makers and looks for matches across the markets you follow.</p>
+            </div>
+            <div class="dc dc-morning">
+              <p class="kicker"><span class="kicker-dot"></span>Morning · 07:00</p>
+              <h2 class="h2">Start your day with a <em>clearer picture.</em></h2>
+              <p class="day-lead">One briefing with what changed, what fits and what to do next. Qura suggests. You decide.</p>
+            </div>
+            <div class="clock" aria-hidden="true"><span class="clock-t" data-clock>02:14</span><span class="clock-bar"><i data-clockfill></i></span><span class="clock-ends"><small>Night</small><small>Morning</small></span></div>
+          </div>
+
+          <div class="console" aria-hidden="true">
+            <div class="con-bar"><span class="dots"><i></i><i></i><i></i></span><span class="con-title"><span class="orb sm"></span><span class="ct-night">Qura · Overnight activity</span><span class="ct-morning">Qura · Your morning briefing</span></span><span class="con-live"><i></i><span class="ct-night">Running</span><span class="ct-morning">07:00</span></span></div>
+
+            <!-- night view -->
+            <div class="con-night">
+              <div class="cn-stats">
+                <div><b data-count-night="1240">0</b><small>listings checked</small></div>
+                <div><b data-count-night="4">0</b><small>tenders summarised</small></div>
+                <div><b data-count-night="12">0</b><small>trusts re-checked</small></div>
+              </div>
+              <ol class="cn-log">
+                <li><time>23:10</time><span>Scanning NHS, private &amp; international listings</span></li>
+                <li><time>01:40</time><span>4 new tenders read and summarised</span></li>
+                <li class="hit"><time>02:14</time><span>Possible match found</span></li>
+                <li><time>03:30</time><span>Decision-makers re-checked at 12 trusts</span></li>
+                <li><time>05:05</time><span>37 duplicate vacancies merged</span></li>
+              </ol>
+            </div>
+            <!-- morning view -->
+            <div class="con-morning">
+              <p class="cm-hi">Good morning. Here is what changed overnight.</p>
+              <div class="cm-sum"><span><b>14</b> new roles</span><span><b>4</b> new tenders</span><span><b>2</b> contacts updated</span></div>
+              <p class="cm-label">Review first</p>
+            </div>
+
+            <!-- the opportunity carried from night into morning -->
+            <div class="opp" data-opp>
+              <div class="opp-top"><span class="tag sky">Tender</span><span class="opp-flag"><span class="of-night">Match found 02:14</span><span class="of-morning">Review first</span></span></div>
+              <b class="opp-t">Sonography workforce requirement</b>
+              <small class="opp-m">Leeds · NHS Trust · closes in 29 days</small>
+              <div class="opp-why">
+                <span>3 of your suppliers fit</span><span>4 verified sonographers nearby</span><span>Decision-maker confirmed</span>
+              </div>
+              <div class="opp-actions"><span class="oa primary">Review the match</span><span class="oa">Contact decision-maker</span><span class="oa ghost">Not for us</span></div>
+            </div>
+
+            <ul class="cm-more">
+              <li><span class="tag teal">Role</span><b>Band 6 Sonographer</b><small>Leeds · matches 2 profiles</small></li>
+              <li><span class="tag amber">SEND</span><b>Teaching Assistant</b><small>Special school · Manchester</small></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6 · FOUNDING PARTNER OFFER ================= -->
+    <section class="offer" id="offer" aria-labelledby="offer-h">
+      <div class="frame">
+        <div class="offer-card">
+          <div class="of-big"><span class="of-num">12</span><span class="of-unit">months<br />free</span></div>
+          <div class="of-copy">
+            <p class="kicker"><span class="kicker-dot"></span>Founding Partner offer</p>
+            <h2 class="of-h" id="offer-h">12 months of our top plan, <em>free.</em></h2>
+            <p>For organisations that join Qura by 31 December 2026. Clinicians join free, always.</p>
+          </div>
+          <div class="of-cta">
+            <a href="#join" class="btn btn-ink btn-lg">Become a Founding Partner</a>
+            <a href="#demo" class="of-link">Book a demo first →</a>
+            <p class="of-clock"><b data-days>–</b> days left to join</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 7 · PROOF + FINAL ACTION ================= -->
+    <section class="close" id="join" aria-labelledby="close-h">
+      <div class="frame proof">
+        <a class="press" href="#" aria-label="Read the RAD Magazine article">
+          <span class="press-k">As seen in</span>
+          <img src="https://www.qurahealth.org/rad-magazine-logo.svg" alt="RAD Magazine" height="28" />
+          <span class="press-t">“Everyone is looking for someone” · 22 September 2026</span>
+          <span class="press-a">Read the article →</span>
+        </a>
+        <dl class="facts">
+          <div><dt>32+</dt><dd>Combined years in healthcare</dd></div>
+          <div><dt>13,000+</dt><dd>Combined LinkedIn following</dd></div>
+          <div><dt>3,800+</dt><dd>Named decision-makers</dd></div>
+          <div><dt>5</dt><dd>Markets</dd></div>
+        </dl>
+      </div>
+      <div class="frame close-main" id="demo">
+        <h2 class="close-h" id="close-h">One profile. One marketplace.<br /><em>Every connection that matters.</em></h2>
+        <p>Join the platform the sector is building around. Free for clinicians, and 12 months free for Founding Partners.</p>
+        <div class="hero-ctas center">
+          <a href="#" class="btn btn-ink btn-lg">Join Qura free</a>
+          <a href="#" class="btn btn-line btn-lg">Book a demo</a>
         </div>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="container foot-grid">
-      <div>
+    <div class="frame foot-grid">
+      <div class="foot-brand">
         <a href="#" class="logo"><span class="orb"></span><span class="logo-text">Qura<small>Healthcare Growth CRM</small></span></a>
-        <p class="muted">Launches, sector insight and the people building Qura.</p>
-        <h6 class="follow-h">Follow Qura</h6>
+        <p>Launches, sector insight and the people building Qura.</p>
         <div class="socials">
-          <a href="#" class="soc soc-in" aria-label="Qura on LinkedIn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 10.5V17M8 7.5v.01M12 17v-6.5M12 13.2c0-1.6 1-2.7 2.4-2.7S16.5 11.4 16.5 13v4"/></svg>LinkedIn</a>
-          <a href="#" class="soc soc-ig" aria-label="Qura on Instagram"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.01"/></svg>Instagram</a>
-          <a href="#" class="soc soc-tt" aria-label="Qura on TikTok"><svg viewBox="0 0 24 24"><path d="M13.5 3.5v11a3.5 3.5 0 1 1-3.5-3.5"/><path d="M13.5 3.5c.4 2.6 2.2 4.3 5 4.5"/></svg>TikTok</a>
+          <a href="#" aria-label="Qura on LinkedIn">LinkedIn</a>
+          <a href="#" aria-label="Qura on Instagram">Instagram</a>
+          <a href="#" aria-label="Qura on TikTok">TikTok</a>
         </div>
         <div class="stores">
-          <a href="#" class="store" aria-label="Download on the App Store">
-            <svg viewBox="0 0 24 24" class="st-apple"><path d="M12.2 7.2c-1.4-.9-3.8-.9-5.1.9-1.6 2.2-1 6.3 1.2 9.3.9 1.1 1.8 1.7 2.7 1.3.8-.3 1.7-.3 2.5 0 .9.4 1.8-.2 2.7-1.3.9-1.2 1.5-2.5 1.8-3.6-1.6-.8-2.5-2.4-2.2-4.1.1-.8.6-1.5 1.2-2-1.4-1.4-3.4-1.4-4.8-.5z"/><path d="M12.3 6.2c-.1-1.6 1.1-3 2.7-3.2.1 1.6-1.1 3.1-2.7 3.2z"/></svg>
-            <span><small>Download on the</small><b>App Store</b></span>
-          </a>
-          <a href="#" class="store" aria-label="Get it on Google Play">
-            <svg viewBox="0 0 24 24" class="st-play"><polygon points="4,3 4,21 13,12" fill="#2f9bf0"/><polygon points="4,3 16.2,9.9 13,12" fill="#2fd17a"/><polygon points="16.2,9.9 20.5,12 16.2,14.1 13,12" fill="#ffc72c"/><polygon points="4,21 13,12 16.2,14.1" fill="#f0473c"/></svg>
-            <span><small>GET IT ON</small><b>Google Play</b></span>
-          </a>
+          <a href="#" class="store"><small>Download on the</small><b>App Store</b></a>
+          <a href="#" class="store"><small>Get it on</small><b>Google Play</b></a>
         </div>
       </div>
-      <div><h6>Platform</h6><a href="#">How it works</a><a href="#">Marketplace</a><a href="#">Pricing</a></div>
-      <div><h6>Solutions</h6><a href="#">For clinicians</a><a href="#">For suppliers</a><a href="#">SEND Intelligence</a><a href="#">Care Intelligence</a></div>
+      <div><h6>Platform</h6><a href="#platform">How it works</a><a href="#showcase">Inside the platform</a><a href="#">Marketplace</a><a href="#offer">Pricing</a></div>
+      <div><h6>Solutions</h6><a href="#audiences">For clinicians</a><a href="#audiences">For organisations</a><a href="#audiences">For suppliers</a><a href="#">SEND Intelligence</a><a href="#">Care Intelligence</a></div>
       <div><h6>Company</h6><a href="story.html">Our story</a><a href="#">FAQs</a><a href="#">Privacy</a><a href="#">Terms</a></div>
     </div>
-    <div class="container foot-base">
+    <div class="frame foot-base">
       <span>© 2026 Qura, Healthcare Growth CRM</span>
-      <span>Qura Ltd, company no. 17310951 · 167–169 Great Portland Street, London W1W 5PF</span>
+      <span>Qura Ltd, company no. 17310951 · 167–169 Great Portland Street, 5th Floor, London W1W 5PF</span>
     </div>
   </footer>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
-  <script type="module" src="js/main.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
