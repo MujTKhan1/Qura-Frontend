@@ -590,7 +590,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], colLab
 
 
     // scene 2 cards: burst out of the sphere and scatter (problem stamps land), then fly into a three-column
-    // board flipping to their fixed side; after the pin only the nurse's card flies on into the verified profile
+    // board flipping to their fixed side; after the pin the whole board scrolls away with the page
     const fp = state.frag;
     const spread = smooth(1.05, 1.9, s), gather = smooth(2.2, 2.9, s);
     const leave = state.fragOut;                                              // board scrolls away with the page (0 → 1 over half a screen)
@@ -606,9 +606,8 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], colLab
       tv.y += Math.sin(t * 0.8 + k) * 0.12 * spread * (1 - bk);
       tv.lerp(boardPos(o, k, bp), bk);
       tv.z += Math.sin(Math.PI * bk) * 1.2;                                   // lifts towards you mid-flight
-      const g = u.nurse ? gather : 0;
-      tv.lerp(gatherTo, g);
-      if (!u.nurse) tv.y += leave * 5.3;
+      const g = 0;                                                            // nurse card no longer flies into the verified profile
+      tv.y += leave * 5.3;
       o.position.copy(tv);
       const r = spread * (1 - bk) * (1 - g);
       const flip = Math.PI * smooth(0.25, 0.85, bk);
@@ -617,7 +616,7 @@ export function initScene({ canvas, cssRoot, orbitCards = [], chips = [], colLab
       if (side !== u.flipped) { o.element.classList.toggle('flipped', side); u.flipped = side; }
       const sc = (mob ? 0.8 : 1) * (0.0118 + ((mob ? 0.0088 / 0.8 : 0.0125) - 0.0118) * bk);
       o.scale.setScalar(sc * (0.35 + 0.65 * spread) * (1 - 0.7 * g));
-      const op = u.nurse ? cOp : cOp * (1 - smooth(0.2, 0.9, leave));
+      const op = cOp * (1 - smooth(0.2, 0.9, leave));
       o.visible = op > 0.005;
       if (Math.abs(op - u.lastOp) > 0.002) { u.faces.forEach((f) => (f.style.opacity = op.toFixed(3))); u.lastOp = op; }
       const st = smooth(0.05 + k * 0.03, 0.09 + k * 0.03, fp);               // problem stamp lands, one card after another
